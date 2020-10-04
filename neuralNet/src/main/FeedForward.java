@@ -25,4 +25,8 @@ public class FeedForward {
         prevActivationLayer = result;       // save this layer for next use
         return result;
     }
+
+    public double sigmoid(double activation){
+        return (1/(1+Math.pow(Math.E, -activation)));
+    }
 }

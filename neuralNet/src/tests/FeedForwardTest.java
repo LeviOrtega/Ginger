@@ -22,7 +22,7 @@ class FeedForwardTest {
     }
 
     @Test
-    void generateNextLayer() {
+    void testGenerateNextLayer() {
         //test for a 3 layer neural network without sigmoid
         double[][] weights1 = {{2, 3}, {4,5}, {1, 2}};
         double[] expected1 = {3.5, 6.5, 2};
@@ -40,6 +40,14 @@ class FeedForwardTest {
         Assertions.assertArrayEquals(expected3, output3);
 
 
+    }
+
+    @Test
+    void testSigmoid(){
+        //test a couple numbers for sigmoid values
+        Assertions.assertEquals(0.8807970779778823, feedForward.sigmoid(2));
+        Assertions.assertEquals(0.11920292202211757, feedForward.sigmoid(-2));
+        Assertions.assertEquals(0.5, feedForward.sigmoid(0));
     }
 
 
