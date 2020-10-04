@@ -20,7 +20,7 @@ public class FeedForward {
             for (int j = 0; j < weights[0].length; j++){
                 activation += prevActivationLayer[j].getSigmoidActivation() * weights[i][j];
             }
-            result[i] = new Node(activation, false);
+            result[i] = new Node(activation, false);    // all new nodes will not be an input node so isInputNode is false
         }
         prevActivationLayer = result;                   // save this layer for next use
         return result;
