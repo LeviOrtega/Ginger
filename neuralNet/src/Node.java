@@ -1,4 +1,4 @@
-/*
+    /*
 Facilitates basics of activation node 
  */
 public class Node {
