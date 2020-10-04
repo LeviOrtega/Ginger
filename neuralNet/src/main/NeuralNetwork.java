@@ -54,8 +54,8 @@ public class NeuralNetwork {
     // for now we will give custom inputs
      inputs = new Node[]{
              new Node(1, true),
-             new Node(2, true),
-             new Node(3, true)
+             new Node(0.5, true),
+             new Node(0, true)
      };
     }
 
