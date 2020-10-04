@@ -7,8 +7,8 @@ public class Node {
     //private double bias;
     private double error;
 
-    public Node(double activaiton){
-        this.activation = activaiton;
+    public Node(double activation){
+        this.activation = activation;
     }
 
     public double getActivation() {
