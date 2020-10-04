@@ -11,24 +11,34 @@ import java.util.Random;
 class FeedForwardTest {
 
     public double[] input;
-    public double [][] weights;
     public FeedForward feedForward;
 
     @BeforeEach
     void setup(){
-        double[][] weights = {{2, 3}, {4,5}, {1, 2}};
         double[] input = {1, 0.5};
         FeedForward ff = new FeedForward(input);
-        this.weights = weights;
         this.input = input;
         this.feedForward = ff;
     }
 
     @Test
     void generateNextLayer() {
-        double[] expected = {3.5, 6.5, 2};
-        double[] output = feedForward.generateNextLayer(weights);
-        Assertions.assertArrayEquals(expected, output);
+        //test for a 3 layer neural network without sigmoid
+        double[][] weights1 = {{2, 3}, {4,5}, {1, 2}};
+        double[] expected1 = {3.5, 6.5, 2};
+        double[] output1 = feedForward.generateNextLayer(weights1);
+        Assertions.assertArrayEquals(expected1, output1);
+        // test for second feed forward
+        double[][] weights2 = {{1,2,3},{3,2,1}};
+        double[] expected2 = {22.5, 25.5};
+        double[] output2 = feedForward.generateNextLayer(weights2);
+        Assertions.assertArrayEquals(expected2, output2);
+        //final output
+        double[][] weights3 = {{3,5}};
+        double[] expected3 = {195.0};
+        double[] output3 = feedForward.generateNextLayer(weights3);
+        Assertions.assertArrayEquals(expected3, output3);
+
 
     }
 
