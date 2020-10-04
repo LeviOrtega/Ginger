@@ -5,28 +5,28 @@ Feed Forward algorithm
  */
 public class FeedForward {
 
-    private double[] prevActivationLayer;
+    private Node[] prevActivationLayer;
 
-    public FeedForward(double[] inputs) {
-        this.prevActivationLayer = inputs;  // start off with inputs of neural network being the first activation layer
+    public FeedForward(Node[] inputs) {
+        this.prevActivationLayer = inputs;              // start off with inputs of neural network being the first activation layer
 
     }
 
-    public double[] generateNextLayer(double[][] weights){
-        double[] result = new double[weights.length]; // next activation layer is size of number of rows of weights array
+    public Node[] generateNextLayer(double[][] weights){
+        Node[] result = new Node[weights.length];       // next activation layer is size of number of rows of weights array
 
         for (int i = 0; i < weights.length; i++){       // weights row # is # of output, col is # of input
             double activation = 0;
             for (int j = 0; j < weights[0].length; j++){
-                activation += prevActivationLayer[j] * weights[i][j];
+                activation += prevActivationLayer[j].getSigmoidActivation() * weights[i][j];
             }
-            result[i] = activation;
+            result[i] = new Node(activation, false);
         }
-        prevActivationLayer = result;       // save this layer for next use
+        prevActivationLayer = result;                   // save this layer for next use
         return result;
     }
 
-    public double sigmoid(double activation){
+    public static double sigmoid(double activation){
         return (1/(1+Math.pow(Math.E, -activation)));
     }
 }
