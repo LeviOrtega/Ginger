@@ -1,6 +1,8 @@
-    /*
+package main;
+
+/*
 Facilitates basics of activation node 
- */
+*/
 public class Node {
 
     private double activation;
