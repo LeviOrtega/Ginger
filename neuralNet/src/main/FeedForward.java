@@ -1,5 +1,4 @@
 package main;
-
 /*
 Feed Forward algorithm
  */
@@ -9,7 +8,6 @@ public class FeedForward {
 
     public FeedForward(Node[] inputs) {
         this.prevActivationLayer = inputs;              // start off with inputs of neural network being the first activation layer
-
     }
 
     public Node[] generateNextLayer(double[][] weights){
