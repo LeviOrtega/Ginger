@@ -19,8 +19,9 @@ public class NeuralNetwork {
     private double[][] weights1, weights2, weights3;
 
     public NeuralNetwork(){
-        takeInputs();
         initWeights(true);
+        initNodes();
+        takeInputs();
         feedForward = new FeedForward();
         backPropagation = new BackPropagation();
     }
@@ -29,9 +30,9 @@ public class NeuralNetwork {
         //feed forward
         this.runCount++;
         feedForward.setPrevActivationLayer(inputs);
-        hiddenLayer1 = feedForward.generateNextLayer(weights1);
-        hiddenLayer2 = feedForward.generateNextLayer(weights2);
-        outputs = feedForward.generateNextLayer(weights3);
+        hiddenLayer1 = feedForward.generateNextLayer(weights1, hiddenLayer1);
+        hiddenLayer2 = feedForward.generateNextLayer(weights2,hiddenLayer2);
+        outputs = feedForward.generateNextLayer(weights3, outputs);
 
         if(debug) System.out.println("Before BackPropagation \n" + this.debugToString());
 
@@ -46,7 +47,25 @@ public class NeuralNetwork {
         if (printResults) System.out.println(this);
         backPropagation.resetTotalErrorString();
     }
-
+    // Initialize node layers
+    public void initNodes(){
+        inputs = new Node[inputLen];
+        hiddenLayer1 = new Node[h1Len];
+        hiddenLayer2 = new Node[h2Len];
+        outputs = new Node[outputLen];
+        for (int i = 0; i < inputs.length; i++){
+            inputs[i] = new Node(0, true);
+        }
+        for (int i = 0; i < hiddenLayer1.length; i++){
+            hiddenLayer1[i] = new Node(0, false);
+        }
+        for (int i = 0; i < hiddenLayer2.length; i++){
+            hiddenLayer2[i] = new Node(0, false);
+        }
+        for (int i = 0; i < outputs.length; i++){
+            outputs[i] = new Node(0, false);
+        }
+    }
 
     public void initWeights(boolean isNewNetwork){
         weights1 = new double[h1Len][inputLen];
@@ -63,7 +82,7 @@ public class NeuralNetwork {
     }
 
     public double[][] giveRandom(double[][] weights){       // initialize weights with random value if a new neural network
-        Random rand = new Random(1);
+        Random rand = new Random();
         for (int i = 0; i < weights.length; i++){
             for (int j = 0; j < weights[0].length; j++){
                 weights[i][j] = rand.nextDouble();
@@ -74,11 +93,9 @@ public class NeuralNetwork {
 
     public void takeInputs(){
     // for now we will give custom inputs
-     inputs = new Node[]{
-             new Node(1, true),
-             new Node(0.5, true),
-             new Node(0, true)
-     };
+     inputs[0].setActivation(1);
+     inputs[1].setActivation(0);
+     inputs[2].setActivation(0.5);
     }
 
     public double[] takeExpected(){
@@ -136,6 +153,7 @@ public class NeuralNetwork {
 
     public static void main(String[] args){
         NeuralNetwork neuralNetwork = new NeuralNetwork();
+        // booleans in runNetwork are for printing results and printing debugging strings respectivly
         neuralNetwork.runNetwork(true,false);
         for (int i = 0; i < runNum; i++){
             neuralNetwork.runNetwork(false,false);

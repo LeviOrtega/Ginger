@@ -34,7 +34,7 @@ class FeedForwardTest {
         Node node1 = new Node(5, false);
         Node node2 = new Node(3, false);
         Node[] expected1 = {node1, node2};
-        Node[] output1 = feedForward.generateNextLayer(weights1);
+        Node[] output1 = feedForward.generateNextLayer(weights1, expected1);
         for (int i = 0; i < expected1.length; i++){
             Assertions.assertEquals(true, expected1[i].equals(output1[i]));
         }
@@ -44,7 +44,7 @@ class FeedForwardTest {
         double[][] weights2 = {{2,1}};
         Node outputNode = new Node(2.939188424973864, false);
         Node[] expected2 = {outputNode};
-        Node[] output2 = feedForward.generateNextLayer(weights2);
+        Node[] output2 = feedForward.generateNextLayer(weights2, expected2);
         Assertions.assertEquals(true, expected2[0].equals(output2[0]));
 
 
