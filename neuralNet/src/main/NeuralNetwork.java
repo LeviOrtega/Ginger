@@ -7,6 +7,7 @@ import java.util.Random;
 
 public class NeuralNetwork {
     //final static int networkLen = 4;    // 4 layers
+    final static int runNum = 500;
     final static int inputLen = 3;
     final static int h1Len = 4;
     final static int h2Len = 3;
@@ -124,7 +125,7 @@ public class NeuralNetwork {
     public static void main(String[] args){
         NeuralNetwork neuralNetwork = new NeuralNetwork();
         neuralNetwork.runNetwork(true);
-        for (int i = 0; i < 200; i++){
+        for (int i = 0; i < runNum; i++){
             neuralNetwork.runNetwork(false);
         }
         neuralNetwork.runNetwork(true);
