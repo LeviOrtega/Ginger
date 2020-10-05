@@ -1,5 +1,7 @@
 package main;
-
+/*
+Main driving class
+ */
 
 import java.util.Random;
 

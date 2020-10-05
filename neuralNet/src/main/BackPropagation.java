@@ -1,4 +1,8 @@
 package main;
+/*
+Learning algorithm for network
+ */
+
 
 public class BackPropagation {
     final static double learningRate = 4;
@@ -72,12 +76,12 @@ public class BackPropagation {
         }
 
         prevError = error;
-        // after weights are calculated, update prevError to use next Backprop
+        // after weights are calculated, update prevError to use next Backpropagation
     }
 
 
     public void generateActualValues(Node[] node){
-        // we are going to need the actual values for Z funciton, and sigmoid for error
+        // we are going to need the actual values for Z function, and sigmoid for error
         actualActivation = new double[node.length];
         actualSigmoid = new double[node.length];
         for(int i = 0; i < node.length; i++){
