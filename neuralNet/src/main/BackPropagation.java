@@ -1,7 +1,7 @@
 package main;
 
 public class BackPropagation {
-    final static double learningRate = 2;
+    final static double learningRate = 4;
     static String totalError = "";
     double[] actualSigmoid,actualActivation,error;
     double[] prevActualSigmoid, prevError;
@@ -13,7 +13,7 @@ public class BackPropagation {
         generateActualValues(outputs);
         error = new double[outputs.length];
         double tError = 0;
-        for (int i = 0; i < expected.length; i++){
+        for (int i = 0; i < error.length; i++){
             tError += 1/(Math.pow((expected[i] - actualSigmoid[i]),2));                                 // Sum(1/2 * (y-a)^2)
             error[i] = (actualSigmoid[i] - expected[i]) * sigmoidDerivative(actualActivation[i]);       // (a-y)*Sig'(Z)
             outputs[i].setError(error[i]);
@@ -21,9 +21,30 @@ public class BackPropagation {
         totalError += Double.toString(tError);
     }
 
-    public void generateNextLayerError(Node[] layer){
+    public void generateNextLayerError(Node[] layer, double[][] prevWeights){
         generateActualValues(layer);
         error = new double[layer.length];
+        prevWeights = transpose(prevWeights);       // makes it easier for multiplying
+        double[] prevErrorDotWeights = errorDotProduct(prevWeights);
+
+        for (int i = 0; i < error.length; i++){
+            error[i] = prevErrorDotWeights[i] * sigmoidDerivative(actualActivation[i]);             // error(l-1)*W(l-1)T x Sig'(Z(l))
+            layer[i].setError(error[i]);
+        }
+
+    }
+
+    public double[] errorDotProduct(double[][] prevWeights){
+        double[] result = new double[error.length];     // Hadamard dot product calls for vector of equal length
+        double value = 0;
+        for (int i = 0; i < prevWeights.length; i++){
+            for (int j = 0; j < prevWeights[0].length; j++){
+                value += prevWeights[i][j] * prevError[j];
+            }
+            result[i] = value;
+        }
+
+        return result;
 
     }
 
@@ -95,12 +116,21 @@ public class BackPropagation {
     }
 
     public double[][] transpose(double[][] array){
-
-        return null;
+        double[][] result = new double[array[0].length][array.length];          // row = col, col = row
+        for (int i = 0; i < array.length; i++){
+            for (int j = 0; j < array[0].length; j++){
+                result[j][i] = array[i][j];
+            }
+        }
+        return result;
     }
 
     public double sigmoidDerivative(double x){ // 1/(e^x * (1+e^-x)^2)
         return 1/(Math.pow(Math.E, x) * (Math.pow(1+Math.pow(Math.E, -x),2)));
+    }
+
+    public void resetTotalErrorString(){
+        totalError = "";
     }
 
 }

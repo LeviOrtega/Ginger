@@ -9,11 +9,11 @@ public class FeedForward {
     public FeedForward() {}
 
     public void setPrevActivationLayer(Node[] inputs){
-        this.prevActivationLayer = inputs;                         // start off with inputs of neural network being the first activation layer
+        this.prevActivationLayer = inputs;                          // start off with inputs of neural network being the first activation layer
     }
 
     public Node[] generateNextLayer(double[][] weights){
-        Node[] result = new Node[weights.length];                  // next activation layer is size of number of rows of weights array
+        Node[] result = new Node[weights.length];                   // next activation layer is size of number of rows of weights array
 
         for (int i = 0; i < weights.length; i++){                  // weights row # is # of output, col is # of input
             double activation = 0;

@@ -28,14 +28,17 @@ public class NeuralNetwork {
         hiddenLayer2 = feedForward.generateNextLayer(weights2);
         outputs = feedForward.generateNextLayer(weights3);
 
-        System.out.println("Before BackPropagation \n" + this);
+        //System.out.println("Before BackPropagation \n" + this);
 
         //back propagate
         backPropagation.generateOutputError(outputs,getExpected());
         weights3 = backPropagation.calcNewWeights(weights3, hiddenLayer2);
-
-
-        System.out.println("After BackPropagation \n" + this + "\n" + "Network Error: " + backPropagation.getTotalError());
+        backPropagation.generateNextLayerError(hiddenLayer2, weights3);
+        weights2 = backPropagation.calcNewWeights(weights2, hiddenLayer1);
+        backPropagation.generateNextLayerError(hiddenLayer1, weights2);
+        weights2 = backPropagation.calcNewWeights(weights1, inputs);
+        //System.out.println("After BackPropagation \n" + this + "\n" + "Network Error: " + backPropagation.getTotalError());
+        backPropagation.resetTotalErrorString();
     }
 
 
@@ -121,6 +124,12 @@ public class NeuralNetwork {
     public static void main(String[] args){
         NeuralNetwork neuralNetwork = new NeuralNetwork();
         neuralNetwork.runNetwork();
+        System.out.println(neuralNetwork);
+        for (int i = 0; i < 200; i++){
+            neuralNetwork.runNetwork();
+        }
+        System.out.println(neuralNetwork);
+
     }
 
 
