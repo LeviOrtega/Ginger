@@ -18,8 +18,8 @@ public class BackPropagation {
         error = new double[outputs.length];
         double tError = 0;
         for (int i = 0; i < error.length; i++){
-            tError += 0.5*(Math.pow((expected[i] - actualSigmoid[i]),2));                                 // Sum(1/2 * (y-a)^2)
-            error[i] = (actualSigmoid[i] - expected[i]) * sigmoidDerivative(actualActivation[i]);       // (a-y)*Sig'(Z)
+            tError += 0.5*(Math.pow((expected[i] - actualSigmoid[i]),2));                                   // Sum(1/2 * (y-a)^2)
+            error[i] = (actualSigmoid[i] - expected[i]) * sigmoidDerivative(actualActivation[i]);           // (a-y)*Sig'(Z)
             outputs[i].setError(error[i]);
         }
         totalError += Double.toString(tError);
@@ -32,7 +32,7 @@ public class BackPropagation {
         double[] prevErrorDotWeights = errorDotProduct(prevWeights);
 
         for (int i = 0; i < error.length; i++){
-            error[i] = prevErrorDotWeights[i] * sigmoidDerivative(actualActivation[i]);             // error(l-1)*W(l-1)T x Sig'(Z(l))
+            error[i] = prevErrorDotWeights[i] * sigmoidDerivative(actualActivation[i]);                     // error(l-1)*W(l-1)T x Sig'(Z(l))
             layer[i].setError(error[i]);
         }
 

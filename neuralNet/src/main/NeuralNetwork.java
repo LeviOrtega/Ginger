@@ -39,7 +39,7 @@ public class NeuralNetwork {
         backPropagation.generateNextLayerError(hiddenLayer2, weights3);
         weights2 = backPropagation.calcNewWeights(weights2, hiddenLayer1);
         backPropagation.generateNextLayerError(hiddenLayer1, weights2);
-        weights2 = backPropagation.calcNewWeights(weights1, inputs);
+        weights1 = backPropagation.calcNewWeights(weights1, inputs);
         if(printResults) System.out.println("After BackPropagation \n" + this + "\n" + "Network Error: " + backPropagation.getTotalError());
         backPropagation.resetTotalErrorString();
     }
