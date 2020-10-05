@@ -21,14 +21,14 @@ public class NeuralNetwork {
         backPropagation = new BackPropagation();
     }
 
-    public void runNetwork(){
+    public void runNetwork(boolean printResults){
         //feed forward
         feedForward.setPrevActivationLayer(inputs);
         hiddenLayer1 = feedForward.generateNextLayer(weights1);
         hiddenLayer2 = feedForward.generateNextLayer(weights2);
         outputs = feedForward.generateNextLayer(weights3);
 
-        //System.out.println("Before BackPropagation \n" + this);
+        if(printResults) System.out.println("Before BackPropagation \n" + this);
 
         //back propagate
         backPropagation.generateOutputError(outputs,getExpected());
@@ -37,7 +37,7 @@ public class NeuralNetwork {
         weights2 = backPropagation.calcNewWeights(weights2, hiddenLayer1);
         backPropagation.generateNextLayerError(hiddenLayer1, weights2);
         weights2 = backPropagation.calcNewWeights(weights1, inputs);
-        //System.out.println("After BackPropagation \n" + this + "\n" + "Network Error: " + backPropagation.getTotalError());
+        if(printResults) System.out.println("After BackPropagation \n" + this + "\n" + "Network Error: " + backPropagation.getTotalError());
         backPropagation.resetTotalErrorString();
     }
 
@@ -94,8 +94,6 @@ public class NeuralNetwork {
         message += getWeightStringValue(weights1, 1);
         message += getWeightStringValue(weights2, 2);
         message += getWeightStringValue(weights3, 3);
-
-
         return message;
     }
 
@@ -123,12 +121,11 @@ public class NeuralNetwork {
 
     public static void main(String[] args){
         NeuralNetwork neuralNetwork = new NeuralNetwork();
-        neuralNetwork.runNetwork();
-        System.out.println(neuralNetwork);
+        neuralNetwork.runNetwork(true);
         for (int i = 0; i < 200; i++){
-            neuralNetwork.runNetwork();
+            neuralNetwork.runNetwork(false);
         }
-        System.out.println(neuralNetwork);
+        neuralNetwork.runNetwork(true);
 
     }
 
