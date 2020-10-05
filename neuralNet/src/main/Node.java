@@ -40,6 +40,10 @@ public class Node{
         setSigmoidActivation(this.activation);  // keep sigmoid value up to date
     }
 
+    public void setError(double error){
+    this.error = error;
+    }
+
     @Override
     public String toString() {
         return "Node{" +

@@ -2,6 +2,7 @@ package main;
 
 public class BackPropagation {
     final static double learningRate = 2;
+    static String totalError = "";
     double[] actualSigmoid,actualActivation,error;
     double[] prevActualSigmoid, prevError;
     double[][] weightChangeMatrix;
@@ -10,13 +11,19 @@ public class BackPropagation {
 
     public void generateOutputError(Node[] outputs, double[] expected){
         generateActualValues(outputs);
-        error = new double[expected.length];
+        error = new double[outputs.length];
+        double tError = 0;
         for (int i = 0; i < expected.length; i++){
+            tError += 1/(Math.pow((expected[i] - actualSigmoid[i]),2));                                 // Sum(1/2 * (y-a)^2)
             error[i] = (actualSigmoid[i] - expected[i]) * sigmoidDerivative(actualActivation[i]);       // (a-y)*Sig'(Z)
+            outputs[i].setError(error[i]);
         }
+        totalError += Double.toString(tError);
     }
 
-    public void generateNextLayerError(){
+    public void generateNextLayerError(Node[] layer){
+        generateActualValues(layer);
+        error = new double[layer.length];
 
     }
 
@@ -83,6 +90,9 @@ public class BackPropagation {
         }
     }
 
+    public String getTotalError(){
+        return totalError;
+    }
 
     public double[][] transpose(double[][] array){
 

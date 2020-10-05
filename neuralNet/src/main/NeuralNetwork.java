@@ -4,7 +4,7 @@ package main;
 import java.util.Random;
 
 public class NeuralNetwork {
-    final static int networkLen = 4;    // 4 layers
+    //final static int networkLen = 4;    // 4 layers
     final static int inputLen = 3;
     final static int h1Len = 4;
     final static int h2Len = 3;
@@ -33,7 +33,9 @@ public class NeuralNetwork {
         //back propagate
         backPropagation.generateOutputError(outputs,getExpected());
         weights3 = backPropagation.calcNewWeights(weights3, hiddenLayer2);
-        System.out.println("After BackPropagation \n" + this);
+
+
+        System.out.println("After BackPropagation \n" + this + "\n" + "Network Error: " + backPropagation.getTotalError());
     }
 
 
@@ -52,7 +54,7 @@ public class NeuralNetwork {
     }
 
     public double[][] giveRandom(double[][] weights){       // initialize weights with random value if a new neural network
-        Random rand = new Random();
+        Random rand = new Random(1);
         for (int i = 0; i < weights.length; i++){
             for (int j = 0; j < weights[0].length; j++){
                 weights[i][j] = rand.nextDouble();
