@@ -7,11 +7,12 @@ import java.util.Random;
 
 public class NeuralNetwork {
     //final static int networkLen = 4;    // 4 layers
-    final static int runNum = 500;
+    final static int runNum = 1000;
     final static int inputLen = 3;
     final static int h1Len = 4;
-    final static int h2Len = 3;
-    final static int outputLen = 2;
+    final static int h2Len = 4;
+    final static int outputLen = 10;
+    static int runCount;            // how many times network has been back propagated
     private FeedForward feedForward;
     private BackPropagation backPropagation;
     private Node[] inputs, hiddenLayer1, hiddenLayer2, outputs;
@@ -24,23 +25,25 @@ public class NeuralNetwork {
         backPropagation = new BackPropagation();
     }
 
-    public void runNetwork(boolean printResults){
+    public void runNetwork(boolean printResults, boolean debug){
         //feed forward
+        this.runCount++;
         feedForward.setPrevActivationLayer(inputs);
         hiddenLayer1 = feedForward.generateNextLayer(weights1);
         hiddenLayer2 = feedForward.generateNextLayer(weights2);
         outputs = feedForward.generateNextLayer(weights3);
 
-        if(printResults) System.out.println("Before BackPropagation \n" + this);
+        if(debug) System.out.println("Before BackPropagation \n" + this.debugToString());
 
         //back propagate
-        backPropagation.generateOutputError(outputs,getExpected());
+        backPropagation.generateOutputError(outputs,takeExpected());
         weights3 = backPropagation.calcNewWeights(weights3, hiddenLayer2);
         backPropagation.generateNextLayerError(hiddenLayer2, weights3);
         weights2 = backPropagation.calcNewWeights(weights2, hiddenLayer1);
         backPropagation.generateNextLayerError(hiddenLayer1, weights2);
         weights1 = backPropagation.calcNewWeights(weights1, inputs);
-        if(printResults) System.out.println("After BackPropagation \n" + this + "\n" + "Network Error: " + backPropagation.getTotalError());
+        if(debug) System.out.println("After BackPropagation \n" + this.debugToString() + "\n");
+        if (printResults) System.out.println(this);
         backPropagation.resetTotalErrorString();
     }
 
@@ -78,8 +81,8 @@ public class NeuralNetwork {
      };
     }
 
-    public double[] getExpected(){
-        double[] expected = {1,0};
+    public double[] takeExpected(){
+        double[] expected = {0,0,0,0,0,1,0,0,0,0};
         return expected;
         // or get from file
     }
@@ -87,7 +90,16 @@ public class NeuralNetwork {
 
 
     public String toString(){
+        String message = "Run number: " + runCount + "\n";
+        message += "Input nodes: \n";
+        message += getLayerStringValue(inputs, 1);
+        message += "Output Nodes: \n";
+        message += getLayerStringValue(outputs, 4);
+        message += "Network Error: " + backPropagation.getTotalError() + "\n";
+        return message;
+    }
 
+    public String debugToString(){
         String message = "Nodes: \n";
         message += getLayerStringValue(inputs, 1);
         message += getLayerStringValue(hiddenLayer1, 2);
@@ -124,11 +136,11 @@ public class NeuralNetwork {
 
     public static void main(String[] args){
         NeuralNetwork neuralNetwork = new NeuralNetwork();
-        neuralNetwork.runNetwork(true);
+        neuralNetwork.runNetwork(true,false);
         for (int i = 0; i < runNum; i++){
-            neuralNetwork.runNetwork(false);
+            neuralNetwork.runNetwork(false,false);
         }
-        neuralNetwork.runNetwork(true);
+        neuralNetwork.runNetwork(true,false);
 
     }
 
