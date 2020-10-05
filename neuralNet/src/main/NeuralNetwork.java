@@ -5,6 +5,11 @@ Main driving class
 
 import java.util.Random;
 
+//TODO Import inputs, expected, weights, and biases from file, export each back to same file after learning. Testing will pull from file only
+//TODO Differentiate runNetwork into two functions: learning and testing
+//TODO Divide inputs and their associative expected into batches. Instead of runs, train network on iterations and epochs. Node[] will now be a Node[][]
+
+
 public class NeuralNetwork {
     //final static int networkLen = 4;    // 4 layers
     final static int runNum = 1000;

@@ -3,6 +3,7 @@ package main;
 /*
 Facilitates basics of activation node 
 */
+//TODO Include bias functions
 public class Node{
 
     private double activation;              // keep this value around for backpropigation

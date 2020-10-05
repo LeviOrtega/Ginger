@@ -2,6 +2,9 @@ package main;
 /*
 Feed Forward algorithm
  */
+
+//TODO Account inputs for batches
+
 public class FeedForward {
 
     private Node[] prevActivationLayer;
