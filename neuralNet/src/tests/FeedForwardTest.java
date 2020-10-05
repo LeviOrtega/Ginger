@@ -20,7 +20,8 @@ class FeedForwardTest {
         Node node2 = new Node(1, true);
         Node node3 = new Node(0, true);
         Node[] inputs = {node1, node2, node3};
-        FeedForward feedForward = new FeedForward(inputs);
+        FeedForward feedForward = new FeedForward();
+        feedForward.setPrevActivationLayer(inputs);
         this.feedForward = feedForward;
     }
 

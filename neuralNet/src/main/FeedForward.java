@@ -6,7 +6,9 @@ public class FeedForward {
 
     private Node[] prevActivationLayer;
 
-    public FeedForward(Node[] inputs) {
+    public FeedForward() {}
+
+    public void setPrevActivationLayer(Node[] inputs){
         this.prevActivationLayer = inputs;              // start off with inputs of neural network being the first activation layer
     }
 

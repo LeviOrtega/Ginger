@@ -19,10 +19,14 @@ public class NeuralNetwork {
     }
 
     public void runNetwork(){
-        feedForward = new FeedForward(inputs);
+        //feed forward
+        feedForward = new FeedForward();
+        feedForward.setPrevActivationLayer(inputs);
         hiddenLayer1 = feedForward.generateNextLayer(weights1);
         hiddenLayer2 = feedForward.generateNextLayer(weights2);
         outputs = feedForward.generateNextLayer(weights3);
+
+        //back propagate
     }
 
 
