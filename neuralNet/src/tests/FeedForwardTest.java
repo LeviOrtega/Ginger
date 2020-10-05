@@ -15,7 +15,7 @@ class FeedForwardTest {
 
     @BeforeEach
     void setup(){
-        // Inputy nodes
+        // Input nodes
         Node node1 = new Node(1, true);
         Node node2 = new Node(1, true);
         Node node3 = new Node(0, true);
