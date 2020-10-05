@@ -10,30 +10,37 @@ public class NeuralNetwork {
     final static int h2Len = 3;
     final static int outputLen = 2;
     private FeedForward feedForward;
+    private BackPropagation backPropagation;
     private Node[] inputs, hiddenLayer1, hiddenLayer2, outputs;
     private double[][] weights1, weights2, weights3;
 
     public NeuralNetwork(){
         takeInputs();
         initWeights(true);
+        feedForward = new FeedForward();
+        backPropagation = new BackPropagation();
     }
 
     public void runNetwork(){
         //feed forward
-        feedForward = new FeedForward();
         feedForward.setPrevActivationLayer(inputs);
         hiddenLayer1 = feedForward.generateNextLayer(weights1);
         hiddenLayer2 = feedForward.generateNextLayer(weights2);
         outputs = feedForward.generateNextLayer(weights3);
 
+        System.out.println("Before BackPropagation \n" + this);
+
         //back propagate
+        backPropagation.generateOutputError(outputs,getExpected());
+        weights3 = backPropagation.calcNewWeights(weights3, hiddenLayer2);
+        System.out.println("After BackPropagation \n" + this);
     }
 
 
     public void initWeights(boolean isNewNetwork){
-        weights1 = new double[4][3];
-        weights2 = new double[3][4];
-        weights3 = new double[2][3];
+        weights1 = new double[h1Len][inputLen];
+        weights2 = new double[h2Len][h1Len];
+        weights3 = new double[outputLen][h2Len];
 
         if(isNewNetwork) {
             weights1 = giveRandom(weights1);
@@ -63,6 +70,12 @@ public class NeuralNetwork {
      };
     }
 
+    public double[] getExpected(){
+        double[] expected = {1,0};
+        return expected;
+        // or get from file
+    }
+
 
 
     public String toString(){
@@ -76,6 +89,7 @@ public class NeuralNetwork {
         message += getWeightStringValue(weights1, 1);
         message += getWeightStringValue(weights2, 2);
         message += getWeightStringValue(weights3, 3);
+
 
         return message;
     }
@@ -105,7 +119,6 @@ public class NeuralNetwork {
     public static void main(String[] args){
         NeuralNetwork neuralNetwork = new NeuralNetwork();
         neuralNetwork.runNetwork();
-        System.out.println(neuralNetwork);
     }
 
 

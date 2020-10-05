@@ -3,7 +3,8 @@ package main;
 public class BackPropagation {
     final static double learningRate = 2;
     double[] actualSigmoid,actualActivation,error;
-    double[] prevActualActivation, prevError;
+    double[] prevActualSigmoid, prevError;
+    double[][] weightChangeMatrix;
 
     public BackPropagation(){}
 
@@ -19,16 +20,31 @@ public class BackPropagation {
 
     }
 
+    public double[][] calcNewWeights(double[][] weights, Node[] prevLayer){
+        generateWeightChange(prevLayer);
+
+        for(int i = 0; i < weights.length; i++){
+            for (int j = 0; j < weights[0].length; j++){
+                weights[i][j] -= weightChangeMatrix[i][j];
+            }
+        }
+        return weights;
+    }
+
     // generates new matrix of weights
-    public double[][] generateWeights(Node[] prevLayer, double[][] weights){
-        double[][] deltaW = new double[weights.length][weights[0].length];      // create equal size matrix for delta weights
+    public void generateWeightChange(Node[] prevLayer){
+        generatePrevSigmoid(prevLayer);
+        generateWeightChangeMatrix();
 
-
-
+        // each index of error multiplied by each row of prev activations
+        for (int i = 0; i < weightChangeMatrix.length; i++){
+            for (int j = 0; j < weightChangeMatrix[0].length; j++){
+                weightChangeMatrix[i][j] *= error[i] * learningRate;        // delta W(oi) = a(i) * error(o) * lr
+            }
+        }
 
         prevError = error;
         // after weights are calculated, update prevError to use next Backprop
-        return null;
     }
 
 
@@ -41,11 +57,36 @@ public class BackPropagation {
             actualSigmoid[i] = node[i].getSigmoidActivation();
         }
     }
-    public void generatePrevActivation(Node[] node){
-        prevActualActivation = new double[node.length];
+    public void generatePrevSigmoid(Node[] node){
+        prevActualSigmoid = new double[node.length];
         for (int i = 0; i < node.length; i++){
-            prevActualActivation[i] = node[i].getActivation();  // for weight deriv, we need array of activations
+            prevActualSigmoid[i] = node[i].getSigmoidActivation();
+            // for weight derivative, we need array of sigmoid calculated activations
         }
+    }
+
+    public void generateWeightChangeMatrix(){
+        // activation matrix will be a output.len x input.len size matrix
+        // change of weights is directly associated with sigmoid activation values of prev activation layer
+        weightChangeMatrix = new double[actualSigmoid.length][prevActualSigmoid.length];
+        for(int i = 0; i < weightChangeMatrix.length; i++){
+            for (int j = 0; j < weightChangeMatrix[0].length; j++){
+                weightChangeMatrix[i][j] = prevActualSigmoid[j];
+                /*
+                Matrix of
+                |a1..an|
+                |a1..an|
+                |a1..an|
+                ... for m number of output nodes and n number of input nodes
+                 */
+            }
+        }
+    }
+
+
+    public double[][] transpose(double[][] array){
+
+        return null;
     }
 
     public double sigmoidDerivative(double x){ // 1/(e^x * (1+e^-x)^2)
