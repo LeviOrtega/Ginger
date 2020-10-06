@@ -77,13 +77,14 @@ public class NeuralNetwork {
 
     // Initialize node layers
     public void initNodes(){
+        // double[][] batchInputs = fileIO.getTrainingDataBatch;
         inputs = new Node[batchSize][inputLen];
         hiddenLayer1 = new Node[batchSize][h1Len];
         hiddenLayer2 = new Node[batchSize][h2Len];
         outputs = new Node[batchSize][outputLen];
         for (int b = 0; b < batchSize; b++) {
             for (int i = 0; i < inputs[0].length; i++) {
-                inputs[b][i] = new Node(0, true);
+                inputs[b][i] = new Node(0, true);  // = new Node(batchInputs[b][i], true);
             }
             for (int i = 0; i < hiddenLayer1[0].length; i++) {
                 hiddenLayer1[b][i] = new Node(0, false);
@@ -108,9 +109,9 @@ public class NeuralNetwork {
                 weights2[b] = giveRandom(weights2[b]);
                 weights3[b] = giveRandom(weights3[b]);
             }
+            // else weights[b] = fileIO.readWeights...or something
         }
-
-        // else... read from a file
+        //TODO import weights from file, run network first to get file initialized
     }
 
     public double[][] giveRandom(double[][] weights){       // initialize weights with random value if a new neural network
