@@ -9,7 +9,7 @@ Learning algorithm for network
 
 public class BackPropagation {
     final static double learningRate = 4;
-    static String totalError = "";
+    static String totalError;
     double[] actualSigmoid,actualActivation,error;
     double[] prevActualSigmoid, prevError;
     double[][] weightChangeMatrix;
@@ -19,6 +19,7 @@ public class BackPropagation {
     public void generateOutputError(Node[] outputs, double[] expected){
         generateActualValues(outputs);
         error = new double[outputs.length];
+        totalError = "";
         double tError = 0;
         for (int i = 0; i < error.length; i++){
             tError += 0.5*(Math.pow((expected[i] - actualSigmoid[i]),2));                                   // Sum(1/2 * (y-a)^2)
@@ -136,8 +137,6 @@ public class BackPropagation {
         return 1/(Math.pow(Math.E, x) * (Math.pow(1+Math.pow(Math.E, -x),2)));
     }
 
-    public void resetTotalErrorString(){
-        totalError = "";
-    }
+
 
 }
