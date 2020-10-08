@@ -3,8 +3,6 @@ package main;
 Feed Forward algorithm
  */
 
-//TODO Account inputs for batches
-
 public class FeedForward {
 
     private Node[] prevActivationLayer;
@@ -16,7 +14,6 @@ public class FeedForward {
     }
 
     public Node[] generateNextLayer(double[][] weights, Node[] layer){
-
         for (int i = 0; i < weights.length; i++){                  // weights row # is # of output, col is # of input
             double activation = 0;
             for (int j = 0; j < weights[0].length; j++){
@@ -25,7 +22,7 @@ public class FeedForward {
             layer[i].setActivation(activation);
             layer[i].setError(0);
         }
-        prevActivationLayer = layer;                              // save this layer for next use
+        prevActivationLayer = layer;                              // save this layer for next feed forward
         return layer;
     }
 

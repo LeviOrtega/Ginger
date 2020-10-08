@@ -17,6 +17,7 @@ public class BackPropagation {
     public BackPropagation(){}
 
     public void generateOutputError(Node[] outputs, double[] expected){
+        // this is only for output layers, their error calculations are different
         generateActualValues(outputs);
         error = new double[outputs.length];
         totalError = "";

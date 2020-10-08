@@ -18,18 +18,22 @@ public class NeuralNetwork {
     final static int h1Len = 4;
     final static int h2Len = 4;
     final static int outputLen = 10;
-    static int runCount;            // how many times network has been back propagated
+    static int runCount;            // how many times network has been run through
     private FeedForward feedForward;
     private BackPropagation backPropagation;
     private Node[][] inputs, hiddenLayer1, hiddenLayer2, outputs;
     private double[][][] weights1, weights2, weights3;
-    private String[] networkErrors;
+    private String[] networkErrors;     // used for displaying the errors of each feed forward
     //private double[][] weightBatchAverage;
 
     public NeuralNetwork(){
-        initWeights(true);
+        initWeights();
+        //initBiases();
         initNodes();
         takeInputs();
+        takeWeights(true); // pass in true if you want to give weights rand value, else read from file
+        //takeBiases(true);
+
         feedForward = new FeedForward();
         backPropagation = new BackPropagation();
         networkErrors = new String[outputLen];
@@ -37,14 +41,7 @@ public class NeuralNetwork {
 
     public void networkLearn(boolean printResults, boolean debug){
         //feed forward
-        for (int b = 0; b < batchSize; b++) {
-            this.runCount++;
-            feedForward.setPrevActivationLayer(inputs[b]);
-            hiddenLayer1[b] = feedForward.generateNextLayer(weights1[b], hiddenLayer1[b]);
-            hiddenLayer2[b] = feedForward.generateNextLayer(weights2[b], hiddenLayer2[b]);
-            outputs[b] = feedForward.generateNextLayer(weights3[b], outputs[b]);
-        }
-
+        batchFeedForward();
         if(debug) System.out.println("Before BackPropagation \n" + this.debugToString());
 
         //back propagate
@@ -53,8 +50,18 @@ public class NeuralNetwork {
         if (printResults) System.out.println(this);
     }
 
+    public void batchFeedForward() {
+        for (int b = 0; b < batchSize; b++) {
+            runCount++;
+            feedForward.setPrevActivationLayer(inputs[b]);
+            hiddenLayer1[b] = feedForward.generateNextLayer(weights1[b], hiddenLayer1[b]);
+            hiddenLayer2[b] = feedForward.generateNextLayer(weights2[b], hiddenLayer2[b]);
+            outputs[b] = feedForward.generateNextLayer(weights3[b], outputs[b]);
+        }
+    }
+
     public void batchBackPropagation(){
-        double[][] weight3Average = new double[weights3.length][weights3[0].length];
+        //double[][] weight3Average = new double[weights3.length][weights3[0].length];
         for (int b = 0; b < batchSize; b++) {
             backPropagation.generateOutputError(outputs[b], takeExpected()[b]);
             networkErrors[b] = backPropagation.getTotalError();
@@ -77,14 +84,13 @@ public class NeuralNetwork {
 
     // Initialize node layers
     public void initNodes(){
-        // double[][] batchInputs = fileIO.getTrainingDataBatch;
         inputs = new Node[batchSize][inputLen];
         hiddenLayer1 = new Node[batchSize][h1Len];
         hiddenLayer2 = new Node[batchSize][h2Len];
         outputs = new Node[batchSize][outputLen];
         for (int b = 0; b < batchSize; b++) {
             for (int i = 0; i < inputs[0].length; i++) {
-                inputs[b][i] = new Node(0, true);  // = new Node(batchInputs[b][i], true);
+                inputs[b][i] = new Node(0, true);
             }
             for (int i = 0; i < hiddenLayer1[0].length; i++) {
                 hiddenLayer1[b][i] = new Node(0, false);
@@ -98,11 +104,13 @@ public class NeuralNetwork {
         }
     }
 
-    public void initWeights(boolean isNewNetwork){
+    public void initWeights(){
         weights1 = new double[batchSize][h1Len][inputLen];
         weights2 = new double[batchSize][h2Len][h1Len];
         weights3 = new double[batchSize][outputLen][h2Len];
 
+    }
+    public void takeWeights(boolean isNewNetwork){
         for (int b = 0; b < batchSize; b++) {
             if (isNewNetwork) {
                 weights1[b] = giveRandom(weights1[b]);
@@ -125,7 +133,7 @@ public class NeuralNetwork {
     }
 
     public void takeInputs(){
-    // for now we will give custom inputs
+   //TODO take inputs from file
      inputs[0][0].setActivation(0);
      inputs[0][1].setActivation(0);
      inputs[0][2].setActivation(0);
@@ -141,6 +149,10 @@ public class NeuralNetwork {
      inputs[4][0].setActivation(1);
      inputs[4][1].setActivation(1);
      inputs[4][2].setActivation(0.5);
+
+        // double[][] batchInputs = fileIO.getTrainingDataBatch;
+        // for (...)
+        // inputs[b][i] = new Node(batchInputs[b][i], true);
     }
 
     public double[][] takeExpected(){
@@ -154,7 +166,6 @@ public class NeuralNetwork {
 
         // or get from file
     }
-
 
 
     public String toString(){
@@ -204,8 +215,6 @@ public class NeuralNetwork {
         }
         return result;
     }
-
-
 
 
     public static void main(String[] args){
