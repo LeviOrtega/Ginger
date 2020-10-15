@@ -7,25 +7,24 @@ import java.util.Random;
 
 //TODO Import inputs, expected, weights, and biases from file, export each back to same file after learning. Testing will pull from file only
 //TODO Differentiate runNetwork into two functions: learning and testing
-//TODO Divide inputs and their associative expected into batches. Instead of runs, train network on iterations and epochs. Node[] will now be a Node[][]
 
 
 public class NeuralNetwork {
-    //final static int networkLen = 4;    // 4 layers
     final static int batchSize = 5;
-    final static int runNum = 1000;
+    final static int runNum = 10000;
     final static int inputLen = 3;
     final static int h1Len = 4;
     final static int h2Len = 4;
     final static int outputLen = 10;
-    static int runCount;            // how many times network has been run through
+    final static int randSeed = 1;
+    static int runCount;                // how many times network has been run through
     private FeedForward feedForward;
     private BackPropagation backPropagation;
     private Node[][] inputs, hiddenLayer1, hiddenLayer2, outputs;
     private double[][][] weights1, weights2, weights3;
     private double[][] bias1, bias2, bias3;
     private String[] networkErrors;     // used for displaying the errors of each feed forward
-    //private double[][] weightBatchAverage;
+
 
     public NeuralNetwork(){
         initWeights();
@@ -34,8 +33,6 @@ public class NeuralNetwork {
         takeBiases(true);
         initNodes();
         takeInputs();
-
-
 
         feedForward = new FeedForward();
         backPropagation = new BackPropagation();
@@ -55,12 +52,13 @@ public class NeuralNetwork {
 
     public void batchFeedForward() {
         for (int b = 0; b < batchSize; b++) {
-            runCount++;
+            //runCount++;       // if you want to show how many ff total
             feedForward.setPrevActivationLayer(inputs[b]);
             hiddenLayer1[b] = feedForward.generateNextLayer(weights1[b], hiddenLayer1[b]);
             hiddenLayer2[b] = feedForward.generateNextLayer(weights2[b], hiddenLayer2[b]);
             outputs[b] = feedForward.generateNextLayer(weights3[b], outputs[b]);
         }
+        runCount++;
     }
 
     public void batchBackPropagation() {
@@ -72,15 +70,19 @@ public class NeuralNetwork {
         }
         backPropagation.averageBatchWeights(weights3);
 
+        backPropBatchLoop(weights3, weights2, outputs, hiddenLayer2, hiddenLayer1);
+        backPropagation.averageBatchWeights(weights2);
+        backPropBatchLoop(weights2, weights1, hiddenLayer2, hiddenLayer1, inputs);
+        backPropagation.averageBatchWeights(weights1);
+    }
+
+    private void backPropBatchLoop(double[][][] weights, double[][][] prevWeights,  Node[][] layer, Node[][] prevLayer, Node[][] prevPrevLayer) {
         for (int b = 0; b < batchSize; b++) {
-
-            backPropagation.generateNextLayerError(hiddenLayer2[b], outputs[b], weights3[b]);
-            weights2[b] = backPropagation.calcNewWeights(weights2[b], hiddenLayer1[b]);
-            backPropagation.generateNextLayerError(hiddenLayer1[b], hiddenLayer2[b], weights2[b]);
-            weights1[b] = backPropagation.calcNewWeights(weights1[b], inputs[b]);
-
+            backPropagation.generateNextLayerError(prevLayer[b], layer[b], weights[b]);
+            prevWeights[b] = backPropagation.calcNewWeights(prevWeights[b], prevPrevLayer[b]);
         }
     }
+
 
     // Initialize node layers
     public void initNodes(){
@@ -108,7 +110,6 @@ public class NeuralNetwork {
         weights1 = new double[batchSize][h1Len][inputLen];
         weights2 = new double[batchSize][h2Len][h1Len];
         weights3 = new double[batchSize][outputLen][h2Len];
-
     }
     public void takeWeights(boolean isNewNetwork){
         for (int b = 0; b < batchSize; b++) {
@@ -139,41 +140,23 @@ public class NeuralNetwork {
         //TODO import biases from file, run network first to get file initialized
     }
 
-    public double[][] giveRandomWeights(double[][] weights){       // initialize weights with random value if a new neural network
-        Random rand = new Random();
-        for (int i = 0; i < weights.length; i++){
-            for (int j = 0; j < weights[0].length; j++){
-                weights[i][j] = rand.nextDouble();
-            }
-        }
-        return weights;
-    }
-
-    public double[] giveRandomBiases(double[] bias){
-        Random rand = new Random();
-        for (int i = 0; i < bias.length; i++){
-            bias[i] = rand.nextDouble();
-        }
-        return bias;
-    }
-
     public void takeInputs(){
-   //TODO take inputs from file
-     inputs[0][0].setActivation(0);
-     inputs[0][1].setActivation(0);
-     inputs[0][2].setActivation(0);
-     inputs[1][0].setActivation(1);
-     inputs[1][1].setActivation(0);
-     inputs[1][2].setActivation(0);
-     inputs[2][0].setActivation(1);
-     inputs[2][1].setActivation(0.5);
-     inputs[2][2].setActivation(0);
-     inputs[3][0].setActivation(1);
-     inputs[3][1].setActivation(1);
-     inputs[3][2].setActivation(0);
-     inputs[4][0].setActivation(1);
-     inputs[4][1].setActivation(1);
-     inputs[4][2].setActivation(0.5);
+        //TODO take inputs from file
+        inputs[0][0].setActivation(0);
+        inputs[0][1].setActivation(0);
+        inputs[0][2].setActivation(0);
+        inputs[1][0].setActivation(1);
+        inputs[1][1].setActivation(0);
+        inputs[1][2].setActivation(0);
+        inputs[2][0].setActivation(1);
+        inputs[2][1].setActivation(0.5);
+        inputs[2][2].setActivation(0);
+        inputs[3][0].setActivation(1);
+        inputs[3][1].setActivation(1);
+        inputs[3][2].setActivation(0);
+        inputs[4][0].setActivation(1);
+        inputs[4][1].setActivation(1);
+        inputs[4][2].setActivation(0.5);
 
         // double[][] batchInputs = fileIO.getTrainingDataBatch;
         // for (...)
@@ -190,6 +173,24 @@ public class NeuralNetwork {
         };
 
         // or get from file
+    }
+
+    public double[][] giveRandomWeights(double[][] weights){       // initialize weights with random value if a new neural network
+        Random rand = new Random(randSeed);
+        for (int i = 0; i < weights.length; i++){
+            for (int j = 0; j < weights[0].length; j++){
+                weights[i][j] = rand.nextDouble();
+            }
+        }
+        return weights;
+    }
+
+    public double[] giveRandomBiases(double[] bias){
+        Random rand = new Random(randSeed);
+        for (int i = 0; i < bias.length; i++){
+            bias[i] = rand.nextDouble();
+        }
+        return bias;
     }
 
 

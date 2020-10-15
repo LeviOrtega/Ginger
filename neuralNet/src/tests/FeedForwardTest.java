@@ -6,9 +6,6 @@ import org.junit.jupiter.api.*;
 
 
 import main.FeedForward;
-
-import java.util.Random;
-
 class FeedForwardTest {
 
     public FeedForward feedForward;

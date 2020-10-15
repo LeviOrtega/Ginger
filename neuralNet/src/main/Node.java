@@ -3,7 +3,7 @@ package main;
 /*
 Facilitates basics of activation node 
 */
-//TODO Include bias functions
+
 public class Node{
 
     private double activation;              // keep this value around for backpropigation
@@ -46,12 +46,12 @@ public class Node{
 
     public void setBias(double bias){this.bias = bias;}
 
-    public void setError(double error){
-    this.error = error;
-    }
-
     public double getError(){
         return this.error;
+    }
+
+    public void setError(double error){
+    this.error = error;
     }
 
     @Override
@@ -65,7 +65,7 @@ public class Node{
                 '}';
     }
 
-    public boolean equals(Node node) {
+    public boolean equals(Node node) {      // used for testing assert.Equals
        return this.activation == node.getActivation() && this.sigmoidActivation == node.getSigmoidActivation();
     }
 }

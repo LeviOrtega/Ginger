@@ -8,7 +8,7 @@ Learning algorithm for network
 //TODO Include bias changes for calcNewWeights
 
 public class BackPropagation {
-    final static double learningRate = 0.2;
+    final static double learningRate = 1;
     static String totalError;
     double[] actualSigmoid,actualActivation,error;
     double[] prevActualSigmoid, prevError;
