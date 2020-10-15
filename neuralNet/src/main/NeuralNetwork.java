@@ -23,16 +23,19 @@ public class NeuralNetwork {
     private BackPropagation backPropagation;
     private Node[][] inputs, hiddenLayer1, hiddenLayer2, outputs;
     private double[][][] weights1, weights2, weights3;
+    private double[][] bias1, bias2, bias3;
     private String[] networkErrors;     // used for displaying the errors of each feed forward
     //private double[][] weightBatchAverage;
 
     public NeuralNetwork(){
         initWeights();
-        //initBiases();
+        takeWeights(true); // pass in true if you want to give weights rand value, else read from file
+        initBiases();
+        takeBiases(true);
         initNodes();
         takeInputs();
-        takeWeights(true); // pass in true if you want to give weights rand value, else read from file
-        //takeBiases(true);
+
+
 
         feedForward = new FeedForward();
         backPropagation = new BackPropagation();
@@ -60,8 +63,7 @@ public class NeuralNetwork {
         }
     }
 
-    public void batchBackPropagation(){
-        //double[][] weight3Average = new double[weights3.length][weights3[0].length];
+    public void batchBackPropagation() {
         for (int b = 0; b < batchSize; b++) {
             backPropagation.generateOutputError(outputs[b], takeExpected()[b]);
             networkErrors[b] = backPropagation.getTotalError();
@@ -70,16 +72,14 @@ public class NeuralNetwork {
             weights2[b] = backPropagation.calcNewWeights(weights2[b], hiddenLayer1[b]);
             backPropagation.generateNextLayerError(hiddenLayer1[b], weights2[b]);
             weights1[b] = backPropagation.calcNewWeights(weights1[b], inputs[b]);
+        }
+        //backPropagation.averageBatchWeights(weights3);
+
+        for (int b = 0; b < batchSize; b++) {
+
+
 
         }
-
-          /*
-            backPropagation.generateNextLayerError(hiddenLayer2[b], weights3[b]);
-            weights2[b] = backPropagation.calcNewWeights(weights2[b], hiddenLayer1[b]);
-            backPropagation.generateNextLayerError(hiddenLayer1[b], weights2[b]);
-            weights1[b] = backPropagation.calcNewWeights(weights1[b], inputs[b]);
-            backPropagation.resetTotalErrorString();
-         */
     }
 
     // Initialize node layers
@@ -90,16 +90,16 @@ public class NeuralNetwork {
         outputs = new Node[batchSize][outputLen];
         for (int b = 0; b < batchSize; b++) {
             for (int i = 0; i < inputs[0].length; i++) {
-                inputs[b][i] = new Node(0, true);
+                inputs[b][i] = new Node(0, 0, true);        // input layer has no bias
             }
             for (int i = 0; i < hiddenLayer1[0].length; i++) {
-                hiddenLayer1[b][i] = new Node(0, false);
+                hiddenLayer1[b][i] = new Node(0, bias1[b][i], false);   // init each node with biases
             }
             for (int i = 0; i < hiddenLayer2[0].length; i++) {
-                hiddenLayer2[b][i] = new Node(0, false);
+                hiddenLayer2[b][i] = new Node(0, bias2[b][i], false);
             }
             for (int i = 0; i < outputs[0].length; i++) {
-                outputs[b][i] = new Node(0, false);
+                outputs[b][i] = new Node(0, bias3[b][i], false);
             }
         }
     }
@@ -113,16 +113,33 @@ public class NeuralNetwork {
     public void takeWeights(boolean isNewNetwork){
         for (int b = 0; b < batchSize; b++) {
             if (isNewNetwork) {
-                weights1[b] = giveRandom(weights1[b]);
-                weights2[b] = giveRandom(weights2[b]);
-                weights3[b] = giveRandom(weights3[b]);
+                weights1[b] = giveRandomWeights(weights1[b]);
+                weights2[b] = giveRandomWeights(weights2[b]);
+                weights3[b] = giveRandomWeights(weights3[b]);
             }
             // else weights[b] = fileIO.readWeights...or something
         }
         //TODO import weights from file, run network first to get file initialized
     }
 
-    public double[][] giveRandom(double[][] weights){       // initialize weights with random value if a new neural network
+    public void initBiases(){
+        bias1 = new double[batchSize][h1Len];
+        bias2 = new double[batchSize][h2Len];
+        bias3 = new double[batchSize][outputLen];
+    }
+
+    public void takeBiases(boolean isNewNetwork){
+        for (int b = 0; b < batchSize; b++) {
+            if (isNewNetwork) {
+                bias1[b] = giveRandomBiases(bias1[b]);
+                bias2[b] = giveRandomBiases(bias2[b]);
+                bias3[b] = giveRandomBiases(bias3[b]);
+            }
+        }
+        //TODO import biases from file, run network first to get file initialized
+    }
+
+    public double[][] giveRandomWeights(double[][] weights){       // initialize weights with random value if a new neural network
         Random rand = new Random();
         for (int i = 0; i < weights.length; i++){
             for (int j = 0; j < weights[0].length; j++){
@@ -130,6 +147,14 @@ public class NeuralNetwork {
             }
         }
         return weights;
+    }
+
+    public double[] giveRandomBiases(double[] bias){
+        Random rand = new Random();
+        for (int i = 0; i < bias.length; i++){
+            bias[i] = rand.nextDouble();
+        }
+        return bias;
     }
 
     public void takeInputs(){

@@ -16,9 +16,9 @@ class FeedForwardTest {
     @BeforeEach
     void setup(){
         // Input nodes
-        Node node1 = new Node(1, true);
-        Node node2 = new Node(1, true);
-        Node node3 = new Node(0, true);
+        Node node1 = new Node(1, 0,true);
+        Node node2 = new Node(1, 0, true);
+        Node node3 = new Node(0, 0, true);
         Node[] inputs = {node1, node2, node3};
         FeedForward feedForward = new FeedForward();
         feedForward.setPrevActivationLayer(inputs);
@@ -31,21 +31,28 @@ class FeedForwardTest {
 
         // hidden layer1 neurons
         double[][] weights1 = {{2,3,1},{1,2,3}};
-        Node node1 = new Node(5, false);
-        Node node2 = new Node(3, false);
+        Node node1 = new Node(7,2,  false);
+        Node node2 = new Node(6, 3, false);
         Node[] expected1 = {node1, node2};
-        Node[] output1 = feedForward.generateNextLayer(weights1, expected1);
+
+        Node node3 = new Node(0,2,  false);
+        Node node4 = new Node(0, 3, false);
+        Node[] output1 = {node3, node4};
+        feedForward.generateNextLayer(weights1, output1);
         for (int i = 0; i < expected1.length; i++){
-            Assertions.assertEquals(true, expected1[i].equals(output1[i]));
+            Assertions.assertEquals(expected1[i].getActivation(),output1[i].getActivation());
         }
 
         // Output neuron
         // I use 2d arrays for weights and 1d array for expected neuron because of method params for functions
         double[][] weights2 = {{2,1}};
-        Node outputNode = new Node(2.939188424973864, false);
-        Node[] expected2 = {outputNode};
-        Node[] output2 = feedForward.generateNextLayer(weights2, expected2);
-        Assertions.assertEquals(true, expected2[0].equals(output2[0]));
+        Node expectedNode = new Node(7.995705274454564, 5,false);
+        Node[] expected2 = {expectedNode};
+
+        Node outputNode = new Node(0, 5, false);
+        Node[] output2 = {outputNode};
+        feedForward.generateNextLayer(weights2, output2);
+        Assertions.assertEquals(expected2[0].getActivation(),output2[0].getActivation());
 
 
 

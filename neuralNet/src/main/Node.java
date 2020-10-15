@@ -9,12 +9,13 @@ public class Node{
     private double activation;              // keep this value around for backpropigation
     private double sigmoidActivation;
     public boolean isInputNode;
-    //private double bias;
+    private double bias;
     private double error;
 
-    public Node(double activation, boolean isInputNode) {
+    public Node(double activation, double bias, boolean isInputNode) {
         this.isInputNode = isInputNode;
         this.activation = activation;
+        this.bias = bias;
 
         setSigmoidActivation(activation);
     }
@@ -41,6 +42,10 @@ public class Node{
         setSigmoidActivation(this.activation);  // keep sigmoid value up to date
     }
 
+    public double getBias(){return this.bias;}
+
+    public void setBias(double bias){this.bias = bias;}
+
     public void setError(double error){
     this.error = error;
     }
@@ -48,13 +53,13 @@ public class Node{
     @Override
     public String toString() {
         return "Node{" +
-                "activation = " + activation +
-                ", sigmoidActivation = " + sigmoidActivation +
-                ", isInputNode = " + isInputNode +
-                ", error = " + error +
+                "activation=" + activation +
+                ", sigmoidActivation=" + sigmoidActivation +
+                ", isInputNode=" + isInputNode +
+                ", bias=" + bias +
+                ", error=" + error +
                 '}';
     }
-
 
     public boolean equals(Node node) {
        return this.activation == node.getActivation() && this.sigmoidActivation == node.getSigmoidActivation();

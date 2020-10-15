@@ -19,6 +19,7 @@ public class FeedForward {
             for (int j = 0; j < weights[0].length; j++){
                 activation += prevActivationLayer[j].getSigmoidActivation() * weights[i][j];
             }
+            activation += layer[i].getBias();
             layer[i].setActivation(activation);
             layer[i].setError(0);
         }
