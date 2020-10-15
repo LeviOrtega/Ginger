@@ -8,7 +8,7 @@ Learning algorithm for network
 //TODO Include bias changes for calcNewWeights
 
 public class BackPropagation {
-    final static double learningRate = 4;
+    final static double learningRate = 0.2;
     static String totalError;
     double[] actualSigmoid,actualActivation,error;
     double[] prevActualSigmoid, prevError;
@@ -131,6 +131,7 @@ public class BackPropagation {
     public void averageBatchWeights(double[][][] weights){
         double[][] average = new double[weights[0].length][weights[0][0].length];   // each batch within each layer will have same number of row and col
 
+        // sum up all of the weights
         for (int b = 0; b < weights.length; b++){       // go through each batch of weights
             for (int i = 0; i < weights[0].length; i ++)   {        // individual batch row
                 for (int j = 0; j < weights[0][0].length; j++){
@@ -138,6 +139,13 @@ public class BackPropagation {
                 }
             }
         }
+        // divide sum by batch size for average
+        for (int i = 0; i < weights[0].length; i ++){
+            for (int j = 0; j < weights[0][0].length; j++){
+                average[i][j] /= weights.length;
+            }
+        }
+        // apply average to each weight matrix of each batch
         for (int b = 0; b < weights.length; b++){
             weights[b] = average;       // set every batch to now have the same average batch;
         }

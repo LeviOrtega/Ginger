@@ -70,7 +70,7 @@ public class NeuralNetwork {
             weights3[b] = backPropagation.calcNewWeights(weights3[b], hiddenLayer2[b]);
 
         }
-        //backPropagation.averageBatchWeights(weights3);
+        backPropagation.averageBatchWeights(weights3);
 
         for (int b = 0; b < batchSize; b++) {
 
