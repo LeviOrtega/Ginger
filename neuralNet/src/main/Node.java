@@ -50,6 +50,10 @@ public class Node{
     this.error = error;
     }
 
+    public double getError(){
+        return this.error;
+    }
+
     @Override
     public String toString() {
         return "Node{" +

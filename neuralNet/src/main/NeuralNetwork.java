@@ -68,16 +68,16 @@ public class NeuralNetwork {
             backPropagation.generateOutputError(outputs[b], takeExpected()[b]);
             networkErrors[b] = backPropagation.getTotalError();
             weights3[b] = backPropagation.calcNewWeights(weights3[b], hiddenLayer2[b]);
-            backPropagation.generateNextLayerError(hiddenLayer2[b], weights3[b]);
-            weights2[b] = backPropagation.calcNewWeights(weights2[b], hiddenLayer1[b]);
-            backPropagation.generateNextLayerError(hiddenLayer1[b], weights2[b]);
-            weights1[b] = backPropagation.calcNewWeights(weights1[b], inputs[b]);
+
         }
         //backPropagation.averageBatchWeights(weights3);
 
         for (int b = 0; b < batchSize; b++) {
 
-
+            backPropagation.generateNextLayerError(hiddenLayer2[b], outputs[b], weights3[b]);
+            weights2[b] = backPropagation.calcNewWeights(weights2[b], hiddenLayer1[b]);
+            backPropagation.generateNextLayerError(hiddenLayer1[b], hiddenLayer2[b], weights2[b]);
+            weights1[b] = backPropagation.calcNewWeights(weights1[b], inputs[b]);
 
         }
     }

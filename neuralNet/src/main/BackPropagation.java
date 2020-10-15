@@ -30,9 +30,10 @@ public class BackPropagation {
         totalError += Double.toString(tError);
     }
 
-    public void generateNextLayerError(Node[] layer, double[][] prevWeights){
+    public void generateNextLayerError(Node[] layer, Node[] prevLayer, double[][] prevWeights){
         generateActualValues(layer);
         error = new double[layer.length];
+        generatePrevError(prevLayer);
         prevWeights = transpose(prevWeights);       // makes it easier for multiplying
         double[] prevErrorDotWeights = errorDotProduct(prevWeights);
 
@@ -80,25 +81,32 @@ public class BackPropagation {
             }
         }
 
-        prevError = error;
+        //prevError = error;
         // after weights are calculated, update prevError to use next Backpropagation
     }
 
 
-    public void generateActualValues(Node[] node){
+    public void generateActualValues(Node[] nodes){
         // we are going to need the actual values for Z function, and sigmoid for error
-        actualActivation = new double[node.length];
-        actualSigmoid = new double[node.length];
-        for(int i = 0; i < node.length; i++){
-            actualActivation[i] = node[i].getActivation();
-            actualSigmoid[i] = node[i].getSigmoidActivation();
+        actualActivation = new double[nodes.length];
+        actualSigmoid = new double[nodes.length];
+        for(int i = 0; i < nodes.length; i++){
+            actualActivation[i] = nodes[i].getActivation();
+            actualSigmoid[i] = nodes[i].getSigmoidActivation();
         }
     }
-    public void generatePrevSigmoid(Node[] node){
-        prevActualSigmoid = new double[node.length];
-        for (int i = 0; i < node.length; i++){
-            prevActualSigmoid[i] = node[i].getSigmoidActivation();
+    public void generatePrevSigmoid(Node[] nodes){
+        prevActualSigmoid = new double[nodes.length];
+        for (int i = 0; i < nodes.length; i++){
+            prevActualSigmoid[i] = nodes[i].getSigmoidActivation();
             // for weight derivative, we need array of sigmoid calculated activations
+        }
+    }
+
+    public void generatePrevError(Node[] nodes){
+        prevError = new double[nodes.length];
+        for (int i = 0; i < nodes.length; i++){
+            prevError[i] = nodes[i].getError();
         }
     }
 
