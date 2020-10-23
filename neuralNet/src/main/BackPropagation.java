@@ -8,7 +8,7 @@ Learning algorithm for network
 //TODO Include bias changes for calcNewWeights
 
 public class BackPropagation {
-    final static double learningRate = 1;
+    final static double learningRate = 0.9;
     static String totalError;
     double[] actualSigmoid,actualActivation,error;
     double[] prevActualSigmoid, prevError;
@@ -151,6 +151,14 @@ public class BackPropagation {
         }
 
     }
+
+    public void calcNewBiases(double[] biases, Node[] layer){
+        for (int i = 0; i < biases.length; i++) {
+            biases[i] -= error[i]*learningRate;
+            layer[i].setBias(biases[i]);
+        }
+    }
+
 
     public String getTotalError(){
         return totalError;

@@ -11,10 +11,10 @@ import java.util.Random;
 
 public class NeuralNetwork {
     final static int batchSize = 5;
-    final static int runNum = 10000;
+    final static int runNum = 30000;
     final static int inputLen = 3;
-    final static int h1Len = 4;
-    final static int h2Len = 4;
+    final static int h1Len = 10;
+    final static int h2Len = 10;
     final static int outputLen = 10;
     final static int randSeed = 1;
     static int runCount;                // how many times network has been run through
@@ -65,20 +65,23 @@ public class NeuralNetwork {
         for (int b = 0; b < batchSize; b++) {
             backPropagation.generateOutputError(outputs[b], takeExpected()[b]);
             networkErrors[b] = backPropagation.getTotalError();
+            backPropagation.calcNewBiases(bias3[b],outputs[b]);
             weights3[b] = backPropagation.calcNewWeights(weights3[b], hiddenLayer2[b]);
-
+            // does not use backPropBatchLoop because this loop is for generating the first output error
         }
         backPropagation.averageBatchWeights(weights3);
 
-        backPropBatchLoop(weights3, weights2, outputs, hiddenLayer2, hiddenLayer1);
+        backPropBatchLoop(weights3, weights2, bias2, outputs, hiddenLayer2, hiddenLayer1);
         backPropagation.averageBatchWeights(weights2);
-        backPropBatchLoop(weights2, weights1, hiddenLayer2, hiddenLayer1, inputs);
+
+        backPropBatchLoop(weights2, weights1, bias1, hiddenLayer2, hiddenLayer1, inputs);
         backPropagation.averageBatchWeights(weights1);
     }
 
-    private void backPropBatchLoop(double[][][] weights, double[][][] prevWeights,  Node[][] layer, Node[][] prevLayer, Node[][] prevPrevLayer) {
+    private void backPropBatchLoop(double[][][] weights, double[][][] prevWeights, double[][] bias, Node[][] layer, Node[][] prevLayer, Node[][] prevPrevLayer) {
         for (int b = 0; b < batchSize; b++) {
             backPropagation.generateNextLayerError(prevLayer[b], layer[b], weights[b]);
+            backPropagation.calcNewBiases(bias[b], prevLayer[b]);
             prevWeights[b] = backPropagation.calcNewWeights(prevWeights[b], prevPrevLayer[b]);
         }
     }
