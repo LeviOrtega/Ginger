@@ -58,7 +58,7 @@ public class BackPropagation {
 
     }
 
-    public double[][] calcNewWeights(double[][] weights, Node[] prevLayer){
+    public void calcNewWeights(double[][] weights, Node[] prevLayer){
         generateWeightChange(prevLayer);
 
         for(int i = 0; i < weights.length; i++){
@@ -66,7 +66,6 @@ public class BackPropagation {
                 weights[i][j] -= weightChangeMatrix[i][j];
             }
         }
-        return weights;
     }
 
     // generates new matrix of weights
@@ -174,11 +173,6 @@ public class BackPropagation {
             biases[b] = average;                                // set each batch of biases to average. Each batch should have the same biases
         }
 
-        for (int b = 0; b < batchLayers.length; b++ ){
-            for (int i = 0; i < batchLayers[0].length; i++){
-                batchLayers[b][i].setBias(average[i]);
-            }
-        }
     }
 
 

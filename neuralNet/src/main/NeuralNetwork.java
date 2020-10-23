@@ -3,6 +3,7 @@ package main;
 Main driving class
  */
 
+import java.util.Arrays;
 import java.util.Random;
 
 //TODO Import inputs, expected, weights, and biases from file, export each back to same file after learning. Testing will pull from file only
@@ -22,21 +23,31 @@ public class NeuralNetwork {
     private BackPropagation backPropagation;
     private Node[][] inputs, hiddenLayer1, hiddenLayer2, outputs;
     private double[][][] weights1, weights2, weights3;
-    private double[][] bias1, bias2, bias3;
+    private double[][] bias1, bias2, bias3, expectedNodeForm;
     private String[] networkErrors;     // used for displaying the errors of each feed forward
 
 
     public NeuralNetwork(){
-        initWeights();
-        takeWeights(true); // pass in true if you want to give weights rand value, else read from file
-        initBiases();
-        takeBiases(true);
-        initNodes();
-        takeInputs();
-
         feedForward = new FeedForward();
         backPropagation = new BackPropagation();
         networkErrors = new String[outputLen];
+        initWeights();
+        initBiases();
+        initNodes();
+
+        takeValues();
+    }
+
+    // this method is used to take values from either test, training, or hardcoded values
+    public void takeValues(){
+        takeBiases(true);
+        takeWeights(true); // pass in true if you want to give weights rand value, else read from file
+        takeInputs();
+        takeExpected();
+
+        setNodesBiases(bias1, hiddenLayer1);
+        setNodesBiases(bias2, hiddenLayer2);
+        setNodesBiases(bias3, outputs);
     }
 
     public void networkLearn(boolean printResults, boolean debug){
@@ -49,7 +60,26 @@ public class NeuralNetwork {
         if (debug) System.out.println("After BackPropagation \n" + this.debugToString() + "\n");
         if (printResults) System.out.println(this);
     }
+    // because everything is averaged in the batches from backpropagation, all weights and biases are the same. I simply use the first batch index for them
+    public void networkRun(boolean printResults)
+    {
 
+        feedForward.setPrevActivationLayer(inputs[0]);
+        hiddenLayer1[0] = feedForward.generateNextLayer(weights1[0], hiddenLayer1[0]);
+        hiddenLayer2[0] = feedForward.generateNextLayer(weights2[0], hiddenLayer2[0]);
+        outputs[0] = feedForward.generateNextLayer(weights3[0], outputs[0]);
+if (printResults) {
+    int choice = 0;
+    double maxChoiceValue = 0;          // find greatest choice that neural network made
+    for (int i = 0; i < outputs[0].length; i++) {
+        if (maxChoiceValue < outputs[0][i].getSigmoidActivation()) {
+            choice = i;
+            maxChoiceValue = outputs[0][i].getSigmoidActivation();
+        }
+    }
+    System.out.println("Network chose: " + choice + ". Expected: " + Arrays.toString(expectedNodeForm[0]));
+}
+    }
     public void batchFeedForward() {
         for (int b = 0; b < batchSize; b++) {
             //runCount++;       // if you want to show how many ff total
@@ -63,29 +93,32 @@ public class NeuralNetwork {
 
     public void batchBackPropagation() {
         for (int b = 0; b < batchSize; b++) {
-            backPropagation.generateOutputError(outputs[b], takeExpected()[b]);
+            backPropagation.generateOutputError(outputs[b], expectedNodeForm[b]);
             networkErrors[b] = backPropagation.getTotalError();
             backPropagation.calcNewBiases(bias3[b]);
-            weights3[b] = backPropagation.calcNewWeights(weights3[b], hiddenLayer2[b]);
+            backPropagation.calcNewWeights(weights3[b], hiddenLayer2[b]);
             // does not use backPropBatchLoop because this loop is for generating the first output error
         }
         backPropagation.averageBatchWeights(weights3);
         backPropagation.averageBatchBiases(bias3, outputs);
+        setNodesBiases(bias3, outputs);
 
         backPropBatchLoop(weights3, weights2, bias2, outputs, hiddenLayer2, hiddenLayer1);
         backPropagation.averageBatchWeights(weights2);
         backPropagation.averageBatchBiases(bias2, hiddenLayer2);
+        setNodesBiases(bias2, hiddenLayer2);
 
         backPropBatchLoop(weights2, weights1, bias1, hiddenLayer2, hiddenLayer1, inputs);
         backPropagation.averageBatchWeights(weights1);
         backPropagation.averageBatchBiases(bias1, hiddenLayer1);
+        setNodesBiases(bias1, hiddenLayer1);
     }
 
     private void backPropBatchLoop(double[][][] weights, double[][][] prevWeights, double[][] bias, Node[][] layer, Node[][] prevLayer, Node[][] prevPrevLayer) {
         for (int b = 0; b < batchSize; b++) {
             backPropagation.generateNextLayerError(prevLayer[b], layer[b], weights[b]);
             backPropagation.calcNewBiases(bias[b]);
-            prevWeights[b] = backPropagation.calcNewWeights(prevWeights[b], prevPrevLayer[b]);
+            backPropagation.calcNewWeights(prevWeights[b], prevPrevLayer[b]);
         }
     }
 
@@ -101,13 +134,13 @@ public class NeuralNetwork {
                 inputs[b][i] = new Node(0, 0, true);        // input layer has no bias
             }
             for (int i = 0; i < hiddenLayer1[0].length; i++) {
-                hiddenLayer1[b][i] = new Node(0, bias1[b][i], false);   // init each node with biases
+                hiddenLayer1[b][i] = new Node(0, 0, false);   // init each node with biases
             }
             for (int i = 0; i < hiddenLayer2[0].length; i++) {
-                hiddenLayer2[b][i] = new Node(0, bias2[b][i], false);
+                hiddenLayer2[b][i] = new Node(0,0, false);
             }
             for (int i = 0; i < outputs[0].length; i++) {
-                outputs[b][i] = new Node(0, bias3[b][i], false);
+                outputs[b][i] = new Node(0, 0, false);
             }
         }
     }
@@ -169,8 +202,8 @@ public class NeuralNetwork {
         // inputs[b][i] = new Node(batchInputs[b][i], true);
     }
 
-    public double[][] takeExpected(){
-        return new double[][]{
+    public void takeExpected(){
+        this.expectedNodeForm = new double[][]{
                 {1,0,0,0,0,0,0,0,0,0},
                 {0,1,0,0,0,0,0,0,0,0},
                 {0,0,1,0,0,0,0,0,0,0},
@@ -179,6 +212,15 @@ public class NeuralNetwork {
         };
 
         // or get from file
+    }
+
+    // set each node's biases. Important for feed forward, called when initializing network and backpropagation
+    public void setNodesBiases(double[][] biases, Node[][] nodes){
+        for (int b = 0; b < nodes.length; b++ ){
+            for (int i = 0; i < nodes[0].length; i++){
+                nodes[b][i].setBias(biases[b][i]);
+            }
+        }
     }
 
     public double[][] giveRandomWeights(double[][] weights){       // initialize weights with random value if a new neural network
@@ -256,7 +298,9 @@ public class NeuralNetwork {
         for (int i = 0; i < runNum; i++){
             neuralNetwork.networkLearn(false,false);
         }
-        neuralNetwork.networkLearn(true,false);
+        //neuralNetwork.networkLearn(true,false);
+
+        neuralNetwork.networkRun(true);
 
     }
 
