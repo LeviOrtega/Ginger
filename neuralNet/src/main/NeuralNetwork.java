@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class NeuralNetwork {
     final static int batchSize = 5;
-    final static int runNum = 30000;
+    final static int runNum = 10000;
     final static int inputLen = 3;
     final static int h1Len = 10;
     final static int h2Len = 10;
@@ -65,23 +65,26 @@ public class NeuralNetwork {
         for (int b = 0; b < batchSize; b++) {
             backPropagation.generateOutputError(outputs[b], takeExpected()[b]);
             networkErrors[b] = backPropagation.getTotalError();
-            backPropagation.calcNewBiases(bias3[b],outputs[b]);
+            backPropagation.calcNewBiases(bias3[b]);
             weights3[b] = backPropagation.calcNewWeights(weights3[b], hiddenLayer2[b]);
             // does not use backPropBatchLoop because this loop is for generating the first output error
         }
         backPropagation.averageBatchWeights(weights3);
+        backPropagation.averageBatchBiases(bias3, outputs);
 
         backPropBatchLoop(weights3, weights2, bias2, outputs, hiddenLayer2, hiddenLayer1);
         backPropagation.averageBatchWeights(weights2);
+        backPropagation.averageBatchBiases(bias2, hiddenLayer2);
 
         backPropBatchLoop(weights2, weights1, bias1, hiddenLayer2, hiddenLayer1, inputs);
         backPropagation.averageBatchWeights(weights1);
+        backPropagation.averageBatchBiases(bias1, hiddenLayer1);
     }
 
     private void backPropBatchLoop(double[][][] weights, double[][][] prevWeights, double[][] bias, Node[][] layer, Node[][] prevLayer, Node[][] prevPrevLayer) {
         for (int b = 0; b < batchSize; b++) {
             backPropagation.generateNextLayerError(prevLayer[b], layer[b], weights[b]);
-            backPropagation.calcNewBiases(bias[b], prevLayer[b]);
+            backPropagation.calcNewBiases(bias[b]);
             prevWeights[b] = backPropagation.calcNewWeights(prevWeights[b], prevPrevLayer[b]);
         }
     }
@@ -249,7 +252,7 @@ public class NeuralNetwork {
     public static void main(String[] args){
         NeuralNetwork neuralNetwork = new NeuralNetwork();
         // booleans in runNetwork are for printing results and printing debugging strings respectivly
-        neuralNetwork.networkLearn(true,false);
+        //neuralNetwork.networkLearn(true,false);
         for (int i = 0; i < runNum; i++){
             neuralNetwork.networkLearn(false,false);
         }

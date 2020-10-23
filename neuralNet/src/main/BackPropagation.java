@@ -8,7 +8,7 @@ Learning algorithm for network
 //TODO Include bias changes for calcNewWeights
 
 public class BackPropagation {
-    final static double learningRate = 0.9;
+    final static double learningRate = 0.5;
     static String totalError;
     double[] actualSigmoid,actualActivation,error;
     double[] prevActualSigmoid, prevError;
@@ -152,10 +152,32 @@ public class BackPropagation {
 
     }
 
-    public void calcNewBiases(double[] biases, Node[] layer){
+    public void calcNewBiases(double[] biases){
         for (int i = 0; i < biases.length; i++) {
             biases[i] -= error[i]*learningRate;
-            layer[i].setBias(biases[i]);
+            //layer[i].setBias(biases[i]);
+        }
+    }
+
+    public void averageBatchBiases(double[][] biases, Node[][] batchLayers){
+        double[] average = new double[biases[0].length];        // use this double array to average all biases
+        for (int b = 0; b < biases.length; b++){                // loop through batches
+            for (int i = 0; i < biases[0].length; i++){         // loop through each node bias
+                average[i] += biases[b][i];                     // add up each node bias
+            }
+        }
+        for (int i = 0; i < average.length; i++) {
+            average[i] /= biases.length;                        // each bias average divided by batch size for average
+        }
+
+        for (int b = 0; b < biases.length; b++ ){
+            biases[b] = average;                                // set each batch of biases to average. Each batch should have the same biases
+        }
+
+        for (int b = 0; b < batchLayers.length; b++ ){
+            for (int i = 0; i < batchLayers[0].length; i++){
+                batchLayers[b][i].setBias(average[i]);
+            }
         }
     }
 
