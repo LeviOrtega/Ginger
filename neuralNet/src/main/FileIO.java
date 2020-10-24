@@ -4,6 +4,10 @@ Manages input and output of weights, biases, test data, and training data
  */
 
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -11,27 +15,58 @@ public class FileIO {
 
     public static double[][] trainingData, testingData;
     public static String[] trainingLabels, testingLabels;
-    private Scanner sc;
+    private Scanner inputScanner;
+    private FileReader fileReader;
+
 
 
     public FileIO(){
-        sc = new Scanner(System.in);
+        inputScanner = new Scanner(System.in);
     }
 
-    public double[][] readWeights(){
+    public double[][] readWeights(String fileName){
 
         return null;
     }
 
-    public double[] readBiases(){
+    public double[] readBiases(String fileName){
+        double[] biases;
+        String[] line;
+        try {
+            FileReader fileReader = new FileReader(fileName);
+            Scanner fileScanner = new Scanner(fileReader);
+            if (fileScanner.hasNextLine()) {
+                line = fileScanner.nextLine().split(",");
+                biases = new double[line.length];
+                for (int i = 0; i < biases.length; i++){
+                    biases[i] = Double.parseDouble(line[i]);
+                }
+                return biases;
+            }
+        }
+        catch (FileNotFoundException e) {
+           System.out.println("Could not find file: " + fileName);
+        }
         return null;
     }
 
-    public void writeWeights(double[][] weights){
+    public void writeWeights(double[][] weights, String fileName){
 
     }
 
-    public void writeBiases(double[] biases){
+    public void writeBiases(double[] biases, String fileName){
+        try {
+           FileWriter fileWriter = new FileWriter(fileName);
+           for (int i = 0; i < biases.length; i++){
+               fileWriter.append(biases[i] + ",");
+           }
+           fileWriter.append("\n");
+           fileWriter.flush();
+           fileWriter.close();
+       }
+       catch (IOException e){
+           System.out.println("Cannot open file: " + fileName);
+       }
 
     }
 
@@ -40,7 +75,7 @@ public class FileIO {
         while (true) {
             System.out.println("Enter how many times to run network: ");
             try {
-                    int input = Integer.parseInt(sc.next());
+                    int input = Integer.parseInt(inputScanner.next());
                     if (input > 0) {
                         return input;
                     }
@@ -56,7 +91,7 @@ public class FileIO {
         while (true) {
             System.out.println("Enter batch size: ");
             try {
-                int input = Integer.parseInt(sc.next());
+                int input = Integer.parseInt(inputScanner.next());
                 if (input > 0) {
                     return input;
                 }
@@ -72,7 +107,7 @@ public class FileIO {
         while (true) {
             System.out.println("Enter: Network learn (0) or Network Run (1)");
             try {
-                int input = Integer.parseInt(sc.next());
+                int input = Integer.parseInt(inputScanner.next());
                 if (input == 0) {
                     return NetworkStatus.LEARN;
                 }
@@ -90,7 +125,7 @@ public class FileIO {
         while (true){
             System.out.println("Is this what you want? (Y/N)");
             try {
-                String answer = sc.next().trim().toLowerCase();
+                String answer = inputScanner.next().trim().toLowerCase();
                 if (answer.equals("y")){
                     return true;
                 }
