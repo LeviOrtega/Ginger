@@ -11,7 +11,7 @@ import java.util.Random;
 
 
 public class NeuralNetwork {
-    public final static boolean isNewNetwork = true;
+    public final static boolean isNewNetwork = false;
     public final static int inputLen = 3;
     public final static int h1Len = 10;
     public final static int h2Len = 10;
@@ -20,7 +20,7 @@ public class NeuralNetwork {
     private static int runCount;                // how many times network has been fed forward
     //Much easier to use different files for when changing sizes of nodes in layers
     public final static String[] biasesFiles = {"neuralNet/src/data/bias1.csv", "neuralNet/src/data/bias2.csv", "neuralNet/src/data/bias3.csv"};
-    public final static String[] weightsFiles = {"neuralNet/src/data/weights1.csv","neuralNet/src/data/weights2.csv","neuralNet/src/data/weights2.csv"};
+    public final static String[] weightsFiles = {"neuralNet/src/data/weights1.csv","neuralNet/src/data/weights2.csv","neuralNet/src/data/weights3.csv"};
     private static int batchSize;
     private static int runNum;                  // number of times the network will run
     private FeedForward feedForward;
@@ -47,8 +47,8 @@ public class NeuralNetwork {
         initBiases();
         initNodes();
 
-        takeBiases(false);
-        takeWeights(true); // pass in true if you want to give weights rand value, else read from file
+        takeBiases(isNewNetwork);
+        takeWeights(isNewNetwork); // pass in true if you want to give weights rand value, else read from file
         // networkStatus is set to END when the weights and or biases were not properly imported from a file
         if (networkStatus != NetworkStatus.END) {
             takeInputs();
@@ -174,9 +174,16 @@ public class NeuralNetwork {
                 weights2[b] = giveRandomWeights(weights2[b]);
                 weights3[b] = giveRandomWeights(weights3[b]);
             }
-            // else weights[b] = fileIO.readWeights...or something
+            else {
+                weights1[b] = fileIO.readWeights(weightsFiles[0]);
+                weights2[b] = fileIO.readWeights(weightsFiles[1]);
+                weights3[b] = fileIO.readWeights(weightsFiles[2]);
+
+                if (weights1[b] == null || weights2[b] == null || weights2[b] == null){
+                    networkStatus = NetworkStatus.END;
+                }
+            }
         }
-        //TODO import weights from file, run network first to get file initialized
     }
 
     public void initBiases(){
@@ -310,6 +317,10 @@ public class NeuralNetwork {
         fileIO.writeBiases(bias1[0], biasesFiles[0]);
         fileIO.writeBiases(bias2[0], biasesFiles[1]);
         fileIO.writeBiases(bias3[0], biasesFiles[2]);
+        fileIO.writeWeights(weights1[0], weightsFiles[0]);
+        fileIO.writeWeights(weights2[0], weightsFiles[1]);
+        fileIO.writeWeights(weights3[0], weightsFiles[2]);
+
         //runLoop();
 
     }

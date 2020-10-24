@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -25,8 +26,47 @@ public class FileIO {
     }
 
     public double[][] readWeights(String fileName){
+        double[][] weights;
+        // I use arrayList here so that I dont have to check to see how long the weights row is
+        ArrayList<String[]> lines = new ArrayList<>();
+        try {
+            FileReader fileReader = new FileReader(fileName);
+            Scanner fileScanner = new Scanner(fileReader);
+            while (fileScanner.hasNextLine()){
+                String[] line = fileScanner.nextLine().split(",");
+                lines.add(line);
+            }
+            weights = new double[lines.size()][lines.get(0).length];
+            for (int i = 0; i < lines.size(); i++){
+                for (int j = 0; j < lines.get(0).length; j++){
+                    weights[i][j] = Double.parseDouble(lines.get(i)[j]);
+                }
+            }
+            return weights;
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("Could not read from file: " + fileName);
+        }
+
 
         return null;
+    }
+
+    public void writeWeights(double[][] weights, String fileName){
+        try {
+            FileWriter fileWriter = new FileWriter(fileName, false);
+            for (int i = 0; i < weights.length; i++) {
+                for (int j = 0; j < weights[0].length; j++) {
+
+                    fileWriter.write(weights[i][j] + ",");
+                }
+                fileWriter.append("\n");
+            }
+            fileWriter.flush();
+        }
+        catch (IOException e){
+            System.out.println("Could not write to file: " + fileName);
+        }
     }
 
     public double[] readBiases(String fileName){
@@ -45,27 +85,22 @@ public class FileIO {
             }
         }
         catch (FileNotFoundException e) {
-           System.out.println("Could not find file: " + fileName);
+           System.out.println("Could read from file: " + fileName);
         }
         return null;
     }
 
-    public void writeWeights(double[][] weights, String fileName){
-
-    }
-
     public void writeBiases(double[] biases, String fileName){
         try {
-           FileWriter fileWriter = new FileWriter(fileName);
+           FileWriter fileWriter = new FileWriter(fileName, false);
            for (int i = 0; i < biases.length; i++){
-               fileWriter.append(biases[i] + ",");
+               fileWriter.write(biases[i] + ",");
            }
-           fileWriter.append("\n");
+           fileWriter.write("\n");
            fileWriter.flush();
-           fileWriter.close();
        }
        catch (IOException e){
-           System.out.println("Cannot open file: " + fileName);
+           System.out.println("Could not write to file: " + fileName);
        }
 
     }
@@ -139,13 +174,6 @@ public class FileIO {
         }
     }
 
-    public void parseTraining(){
-        //TODO parse pictures into double arrays of pixel values and a string array of labels
-    }
-
-    public void parseTesting(){
-        //TODO parse pictures into double arrays of pixel values and a string array of labels
-    }
 
     public double[][] getTrainingDataBatch(int index, int batchSize){
          return null;
