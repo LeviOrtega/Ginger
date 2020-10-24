@@ -11,16 +11,19 @@ import java.util.Random;
 
 
 public class NeuralNetwork {
-    final static int batchSize = 5;
-    final static int runNum = 10000;
-    final static int inputLen = 3;
-    final static int h1Len = 10;
-    final static int h2Len = 10;
-    final static int outputLen = 10;
-    final static int randSeed = 1;
-    static int runCount;                // how many times network has been run through
+
+    public final static int inputLen = 3;
+    public final static int h1Len = 10;
+    public final static int h2Len = 10;
+    public final static int outputLen = 10;
+    public final static int randSeed = 1;
+    private static int runCount;                // how many times network has been run through
+    private static int batchSize;
+    private static int runNum;
     private FeedForward feedForward;
     private BackPropagation backPropagation;
+    private NetworkStatus networkStatus;
+    private FileIO fileIO;
     private Node[][] inputs, hiddenLayer1, hiddenLayer2, outputs;
     private double[][][] weights1, weights2, weights3;
     private double[][] bias1, bias2, bias3, expectedNodeForm;
@@ -30,16 +33,16 @@ public class NeuralNetwork {
     public NeuralNetwork(){
         feedForward = new FeedForward();
         backPropagation = new BackPropagation();
+        fileIO = new FileIO();
         networkErrors = new String[outputLen];
+    }
+
+    // this method is used to take values from either test, training, or hardcoded values
+    public void initializeValues(){
         initWeights();
         initBiases();
         initNodes();
 
-        takeValues();
-    }
-
-    // this method is used to take values from either test, training, or hardcoded values
-    public void takeValues(){
         takeBiases(true);
         takeWeights(true); // pass in true if you want to give weights rand value, else read from file
         takeInputs();
@@ -61,20 +64,19 @@ public class NeuralNetwork {
         if (printResults) System.out.println(this);
     }
     // because everything is averaged in the batches from backpropagation, all weights and biases are the same. I simply use the first batch index for them
-    public void networkRun(boolean printResults)
-    {
+    public void networkRun(boolean printResults){
 
         feedForward.setPrevActivationLayer(inputs[0]);
         hiddenLayer1[0] = feedForward.generateNextLayer(weights1[0], hiddenLayer1[0]);
         hiddenLayer2[0] = feedForward.generateNextLayer(weights2[0], hiddenLayer2[0]);
         outputs[0] = feedForward.generateNextLayer(weights3[0], outputs[0]);
-if (printResults) {
-    int choice = 0;
-    double maxChoiceValue = 0;          // find greatest choice that neural network made
-    for (int i = 0; i < outputs[0].length; i++) {
-        if (maxChoiceValue < outputs[0][i].getSigmoidActivation()) {
-            choice = i;
-            maxChoiceValue = outputs[0][i].getSigmoidActivation();
+        if (printResults) {
+            int choice = 0;
+            double maxChoiceValue = 0;          // find greatest choice that neural network made
+                for (int i = 0; i < outputs[0].length; i++) {
+                     if (maxChoiceValue < outputs[0][i].getSigmoidActivation()) {
+                        choice = i;
+                        maxChoiceValue = outputs[0][i].getSigmoidActivation();
         }
     }
     System.out.println("Network chose: " + choice + ". Expected: " + Arrays.toString(expectedNodeForm[0]));
@@ -241,6 +243,52 @@ if (printResults) {
         return bias;
     }
 
+    public void startNetwork(){
+        boolean satisfiedWithChoices = false;
+        while (satisfiedWithChoices == false) {
+            this.networkStatus = fileIO.getNetworkInfo();
+            if (networkStatus == NetworkStatus.LEARN) {
+                this.batchSize = fileIO.getBiasLength();
+            } else if (networkStatus == NetworkStatus.RUN) {
+                this.batchSize = 1;
+            }
+            this.runNum = fileIO.getRunNumber();
+            System.out.println(getChoices());
+            satisfiedWithChoices = fileIO.isSatisfied();
+        }
+        initializeValues(); // initialize all values. Even when networks been running always read and write to a file
+        if (networkStatus == NetworkStatus.LEARN){
+            learnLoop();
+        }
+        else if (networkStatus == NetworkStatus.RUN){
+            runLoop();
+        }
+    }
+
+    public void runLoop(){
+        for (int i = 0; i < runNum; i++){
+            //networkRun(false);
+        }
+        networkRun(true);
+    }
+
+    public void learnLoop(){
+        for (int i = 0; i < runNum-1; i++){
+            networkLearn(false, false);
+        }
+        // print the results of the last learning
+        networkLearn(true, false);
+        //runLoop();
+
+    }
+
+    public String getChoices(){
+        String result = "You chose: \n";
+        result += "Network Status: " + networkStatus.getValue() + "\n";
+        result += "Batch size: " + batchSize + "\n";
+        result += "Number of runs: " + runNum + "\n";
+        return result;
+    }
 
     public String toString(){
         String message = "";
@@ -293,14 +341,7 @@ if (printResults) {
 
     public static void main(String[] args){
         NeuralNetwork neuralNetwork = new NeuralNetwork();
-        // booleans in runNetwork are for printing results and printing debugging strings respectivly
-        //neuralNetwork.networkLearn(true,false);
-        for (int i = 0; i < runNum; i++){
-            neuralNetwork.networkLearn(false,false);
-        }
-        //neuralNetwork.networkLearn(true,false);
-
-        neuralNetwork.networkRun(true);
+        neuralNetwork.startNetwork();
 
     }
 
