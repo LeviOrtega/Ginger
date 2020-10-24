@@ -1,7 +1,7 @@
 package main;
 
 public enum NetworkStatus {
-    RUN("Run"), LEARN("Learn"), END("End");
+    TEST("Test"), TRAIN("Train"), END("End");
 
     String value;
 

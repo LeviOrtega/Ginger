@@ -9,14 +9,16 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.InputMismatchException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class FileIO {
 
-    public static double[][] trainingData, testingData;
-    public static String[] trainingLabels, testingLabels;
-    private FileReader fileReader;
+    private double[] doubleLabels;
+    private double[][] doubleImages;
+    private int[] labels;
+    private List<int[][]> images;
 
 
 
@@ -103,20 +105,47 @@ public class FileIO {
     }
 
 
-    public double[][] getTrainingDataBatch(int index, int batchSize){
-         return null;
+    public double[][] getDataBatch(int index, int batchSize){
+        double[][] batchInputs = new double[batchSize][doubleImages[0].length];
+        //System.out.println("Double" + Arrays.toString(doubleImages[index]));
+        int t = 0;
+        for (int i = index; i < index + batchSize ; i ++){
+                batchInputs[t] = doubleImages[i];
+            t++;
+        }
+        //System.out.println("Batch" + Arrays.toString(batchInputs[0]));
+        return batchInputs;
     }
 
-    public String[] getTrainingLabelsBatch(int index, int batchSize){
-        return null;
+    public int[] getLabelsBatch(int index, int batchSize){
+        int[] batchInputs = new int[batchSize];
+        int t = 0;
+        for (int i = index; i < index + batchSize; i++){
+            batchInputs[t] = labels[i];
+            t++;
+        }
+        return batchInputs;
     }
 
-    public double[][] getTestingDataBatch(int index, int batchSize){
-        return null;
-    }
 
-    public String[] getTestingLabelsBatch(int index, int batchSize){
-        return null;
+
+    public void getDataFromFiles(String labelFile, String imageFile){
+        labels = MnistReader.getLabels(labelFile);
+        images = MnistReader.getImages(imageFile);
+
+        // want to convert
+
+        doubleImages = new double[images.size()][images.get(0).length * images.get(0)[0].length];
+        for (int i = 0; i < images.size(); i ++){
+            // dii index is used for taking all rows and cols in images and squishing them to better fit input array
+            int dii = 0;        // doubleImagesIndex
+            for (int r = 0; r < images.get(0).length; r++){
+                for (int c = 0; c < images.get(0)[0].length; c++){
+                    doubleImages[i][dii] = images.get(i)[r][c];
+                    dii++;
+                }
+            }
+        }
     }
 
 }

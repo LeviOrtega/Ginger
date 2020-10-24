@@ -49,14 +49,14 @@ public class UserIO {
     public NetworkStatus getNetworkInfo(){
         // return 1 for run, 0 for learn
         while (true) {
-            System.out.println("Enter: Network learn (0) or Network Run (1)");
+            System.out.println("Enter: Network Train (0) or Network Test (1)");
             try {
                 int input = Integer.parseInt(inputScanner.next());
                 if (input == 0) {
-                    return NetworkStatus.LEARN;
+                    return NetworkStatus.TRAIN;
                 }
                 else if (input == 1){
-                    return NetworkStatus.RUN;
+                    return NetworkStatus.TEST;
                 }
 
             } catch (NumberFormatException e) {

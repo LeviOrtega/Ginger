@@ -12,15 +12,13 @@ import java.util.Random;
 
 public class NeuralNetwork {
     public final static boolean isNewNetwork = false;
-    public final static int inputLen = 3;
+    public final static int inputLen = 784;
     public final static int h1Len = 10;
     public final static int h2Len = 10;
     public final static int outputLen = 10;
     public final static int randSeed = 1;       // seed for random biases and weights at start of new network
+    public static int epoch;
     private static int runCount;                // how many times network has been fed forward
-    //Much easier to use different files for when changing sizes of nodes in layers
-    public final static String[] biasesFiles = {"neuralNet/src/data/bias1.csv", "neuralNet/src/data/bias2.csv", "neuralNet/src/data/bias3.csv"};
-    public final static String[] weightsFiles = {"neuralNet/src/data/weights1.csv","neuralNet/src/data/weights2.csv","neuralNet/src/data/weights3.csv"};
     private static int batchSize;
     private static int runNum;                  // number of times the network will run
     private FeedForward feedForward;
@@ -32,6 +30,13 @@ public class NeuralNetwork {
     private double[][][] weights1, weights2, weights3;
     private double[][] bias1, bias2, bias3, expectedNodeForm;
     private String[] networkErrors;             // used for displaying the errors of each feed forward
+    //Much easier to use different files for when changing sizes of nodes in layers
+    public final static String[] biasesFiles = {"neuralNet/src/data/bias1.csv", "neuralNet/src/data/bias2.csv", "neuralNet/src/data/bias3.csv"};
+    public final static String[] weightsFiles = {"neuralNet/src/data/weights1.csv","neuralNet/src/data/weights2.csv","neuralNet/src/data/weights3.csv"};
+    public final static String trainFile = "neuralNet/src/data/train-images.idx3-ubyte";
+    public final static String trainLabelFile = "neuralNet/src/data/train-labels.idx1-ubyte";
+    public final static String testFile = "neuralNet/src/data/t10k-images.idx3-ubyte";
+    public final static String testLabelFile = "neuralNet/src/data/t10k-labels.idx1-ubyte";
 
 
 
@@ -45,6 +50,7 @@ public class NeuralNetwork {
 
     // this method is used to take values from either test, training, or hardcoded values if new network
     public void initializeValues(){
+        epoch = 0;
         initWeights();
         initBiases();
         initNodes();
@@ -53,9 +59,6 @@ public class NeuralNetwork {
         takeWeights(isNewNetwork); // pass in true if you want to give weights rand value, else read from file
         // networkStatus is set to END when the weights and or biases were not properly imported from a file
         if (networkStatus != NetworkStatus.END) {
-            takeInputs();
-            takeExpected();
-
             // note that input layer has no biases to be set
             setNodesBiases(bias1, hiddenLayer1);
             setNodesBiases(bias2, hiddenLayer2);
@@ -63,7 +66,9 @@ public class NeuralNetwork {
         }
     }
 
-    public void networkLearn(boolean printResults, boolean debug){
+    public void networkTrain(boolean printResults, boolean debug){
+        takeInputs();
+        takeExpected();
         //feed forward
         batchFeedForward();
         if(debug) System.out.println("Before BackPropagation \n" + this.debugToString());
@@ -72,6 +77,7 @@ public class NeuralNetwork {
         batchBackPropagation();
         if (debug) System.out.println("After BackPropagation \n" + this.debugToString() + "\n");
         if (printResults) System.out.println(this);
+        epoch ++;   // each epoch will be of batchSize
     }
 
     /*  Because everything is averaged in the batches from backpropagation,
@@ -80,7 +86,9 @@ public class NeuralNetwork {
         to be the size of 1. It will be considered a 2D array still, but with a row length of 1 as each time network is changed
         from learning to running, initializeValues() is called which initializes each 2D array again to the batch size chosen.
     */
-    public void networkRun(boolean printResults){
+    public void networkTest(boolean printResults){
+        takeInputs();
+        takeExpected();
         feedForward.setPrevActivationLayer(inputs[0]);
         hiddenLayer1[0] = feedForward.generateNextLayer(weights1[0], hiddenLayer1[0]);
         hiddenLayer2[0] = feedForward.generateNextLayer(weights2[0], hiddenLayer2[0]);
@@ -94,7 +102,8 @@ public class NeuralNetwork {
                         maxChoiceValue = outputs[0][i].getSigmoidActivation();
                      }
                 }
-    System.out.println("Network chose: " + choice + ". Expected: " + Arrays.toString(expectedNodeForm[0]));
+            epoch ++;   // each epoch will be of batchSize
+            System.out.println("Network chose: " + choice + ". Expected: " + Arrays.toString(expectedNodeForm[0]));
         }
     }
     public void batchFeedForward() {
@@ -214,38 +223,22 @@ public class NeuralNetwork {
     }
 
     public void takeInputs(){
-        //TODO take inputs from file
-        inputs[0][0].setActivation(0);
-        inputs[0][1].setActivation(0);
-        inputs[0][2].setActivation(0);
-        inputs[1][0].setActivation(1);
-        inputs[1][1].setActivation(0);
-        inputs[1][2].setActivation(0);
-        inputs[2][0].setActivation(1);
-        inputs[2][1].setActivation(0.5);
-        inputs[2][2].setActivation(0);
-        inputs[3][0].setActivation(1);
-        inputs[3][1].setActivation(1);
-        inputs[3][2].setActivation(0);
-        inputs[4][0].setActivation(1);
-        inputs[4][1].setActivation(1);
-        inputs[4][2].setActivation(0.5);
+        double[][] batchInputs = fileIO.getDataBatch(epoch * batchSize, batchSize);
 
-        // double[][] batchInputs = fileIO.getTrainingDataBatch;
-        // for (...)
-        // inputs[b][i] = new Node(batchInputs[b][i], true);
+        for (int b = 0; b < batchSize; b++){
+            for (int i = 0; i < inputs[0].length; i++){
+                inputs[b][i].setActivation(batchInputs[b][i]);
+            }
+        }
     }
 
     public void takeExpected(){
-        this.expectedNodeForm = new double[][]{
-                {1,0,0,0,0,0,0,0,0,0},
-                {0,1,0,0,0,0,0,0,0,0},
-                {0,0,1,0,0,0,0,0,0,0},
-                {0,0,0,1,0,0,0,0,0,0},
-                {0,0,0,0,1,0,0,0,0,0}
-        };
-
-        // or get from file
+        expectedNodeForm = new double[batchSize][outputLen];
+        int[] labels = fileIO.getLabelsBatch(epoch * batchSize, batchSize);
+        // converts the expected label (1,2,3..etc) to array where that index is set to 1 for expected output of network
+        for (int b = 0; b < expectedNodeForm.length; b++){
+            expectedNodeForm[b][labels[b]] = 1;
+        }
     }
 
     // set each node's biases. Important for feed forward, called when initializing network and backpropagation
@@ -280,9 +273,9 @@ public class NeuralNetwork {
             boolean satisfiedWithChoices = false;
             while (satisfiedWithChoices == false) {
                 this.networkStatus = userIO.getNetworkInfo();
-                if (networkStatus == NetworkStatus.LEARN) {
+                if (networkStatus == NetworkStatus.TRAIN) {
                     this.batchSize = userIO.getBiasLength();
-                } else if (networkStatus == NetworkStatus.RUN) {
+                } else if (networkStatus == NetworkStatus.TEST) {
                     this.batchSize = 1; // running the network does so one at a time, no need for batches
                 }
                 this.runNum = userIO.getRunNumber();
@@ -290,29 +283,29 @@ public class NeuralNetwork {
                 satisfiedWithChoices = userIO.isSatisfied();
             }
             initializeValues(); // initialize all values. Even when networks been running always read and write to a file
-            if (networkStatus == NetworkStatus.LEARN) {
-                learnLoop();
+            if (networkStatus == NetworkStatus.TRAIN) {
+                fileIO.getDataFromFiles(trainLabelFile, trainFile);
+                trainLoop();
             }
-            else if (networkStatus == NetworkStatus.RUN) {
-                runLoop();
+            else if (networkStatus == NetworkStatus.TEST) {
+                fileIO.getDataFromFiles(testLabelFile, testFile);
+                testLoop();
             }
             else if (networkStatus == NetworkStatus.END){
                 System.out.println("Closing network, files not formatted correctly");
             }
     }
 
-    public void runLoop(){
+    public void testLoop(){
         for (int i = 0; i < runNum; i++){
-            //networkRun(false);
+            networkTest(true);
         }
-        networkRun(true);
+        startNetwork();
     }
 
-    public void learnLoop(){
-        boolean printFinal = false;
+    public void trainLoop(){
         for (int i = 0; i < runNum; i++){
-            if (i == runNum - 1) printFinal = true;
-            networkLearn(printFinal, false);
+            networkTrain(false, false);
         }
 
         // after running, write all learning to file
@@ -323,7 +316,7 @@ public class NeuralNetwork {
         fileIO.writeWeights(weights2[0], weightsFiles[1]);
         fileIO.writeWeights(weights3[0], weightsFiles[2]);
 
-        //runLoop();
+        startNetwork();
 
     }
 

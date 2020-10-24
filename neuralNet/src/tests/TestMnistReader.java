@@ -13,8 +13,8 @@ public class TestMnistReader {
 
 	@Test
 	public void test() {
-		String LABEL_FILE = "/Users/jgriffith/mnist-data/t10k-labels-idx1-ubyte";
-		String IMAGE_FILE = "/Users/jgriffith/mnist-data/t10k-images-idx3-ubyte";
+		String LABEL_FILE = "neuralNet/src/data/t10k-labels.idx1-ubyte";
+		String IMAGE_FILE = "neuralNet/src/data/t10k-images.idx3-ubyte";
 
 		int[] labels = MnistReader.getLabels(LABEL_FILE);
 		List<int[][]> images = MnistReader.getImages(IMAGE_FILE);

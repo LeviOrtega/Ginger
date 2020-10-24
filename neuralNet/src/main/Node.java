@@ -25,12 +25,7 @@ public class Node{
     }
 
     public void setSigmoidActivation(double activation) {
-        if (isInputNode == false){
-            this.sigmoidActivation = FeedForward.sigmoid(activation);       // if the node is input, we only want raw input data
-        }
-        else {
-            this.sigmoidActivation = activation;
-        }
+        this.sigmoidActivation = FeedForward.sigmoid(activation);       // if the node is input, we only want raw input data
     }
 
     public double getActivation() {
