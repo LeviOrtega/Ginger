@@ -16,14 +16,11 @@ public class FileIO {
 
     public static double[][] trainingData, testingData;
     public static String[] trainingLabels, testingLabels;
-    private Scanner inputScanner;
     private FileReader fileReader;
 
 
 
-    public FileIO(){
-        inputScanner = new Scanner(System.in);
-    }
+    public FileIO(){}
 
     public double[][] readWeights(String fileName){
         double[][] weights;
@@ -103,75 +100,6 @@ public class FileIO {
            System.out.println("Could not write to file: " + fileName);
        }
 
-    }
-
-    public int getRunNumber(){
-
-        while (true) {
-            System.out.println("Enter how many times to run network: ");
-            try {
-                    int input = Integer.parseInt(inputScanner.next());
-                    if (input > 0) {
-                        return input;
-                    }
-
-            } catch (NumberFormatException e) {
-                System.out.println("Please enter an integer greater than zero.");
-            }
-        }
-    }
-
-    public int getBiasLength(){
-
-        while (true) {
-            System.out.println("Enter batch size: ");
-            try {
-                int input = Integer.parseInt(inputScanner.next());
-                if (input > 0) {
-                    return input;
-                }
-
-            } catch (NumberFormatException e) {
-                System.out.println("Please enter an integer greater than zero.");
-            }
-        }
-    }
-
-    public NetworkStatus getNetworkInfo(){
-        // return 1 for run, 0 for learn
-        while (true) {
-            System.out.println("Enter: Network learn (0) or Network Run (1)");
-            try {
-                int input = Integer.parseInt(inputScanner.next());
-                if (input == 0) {
-                    return NetworkStatus.LEARN;
-                }
-                else if (input == 1){
-                    return NetworkStatus.RUN;
-                }
-
-            } catch (NumberFormatException e) {
-                System.out.println("Please enter a correct format");
-            }
-        }
-    }
-
-    public boolean isSatisfied(){
-        while (true){
-            System.out.println("Is this what you want? (Y/N)");
-            try {
-                String answer = inputScanner.next().trim().toLowerCase();
-                if (answer.equals("y")){
-                    return true;
-                }
-                else if (answer.equals("n")){
-                    return false;
-                }
-
-            } catch (NumberFormatException e) {
-                System.out.println("Please enter a correct format");
-            }
-        }
     }
 
 

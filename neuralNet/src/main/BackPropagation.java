@@ -3,10 +3,6 @@ package main;
 Learning algorithm for network
  */
 
-//TODO Account inputs for batches
-//TODO Create bias change matrix
-//TODO Include bias changes for calcNewWeights
-
 public class BackPropagation {
     final static double learningRate = 0.5;
     static String totalError;

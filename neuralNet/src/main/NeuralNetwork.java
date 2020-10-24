@@ -6,7 +6,7 @@ Main driving class
 import java.util.Arrays;
 import java.util.Random;
 
-//TODO Import inputs, expected, weights, and biases from file, export each back to same file after learning. Testing will pull from file only
+//TODO Import inputs and expected
 
 
 
@@ -26,6 +26,7 @@ public class NeuralNetwork {
     private FeedForward feedForward;
     private BackPropagation backPropagation;
     private NetworkStatus networkStatus;
+    private UserIO userIO;
     private FileIO fileIO;
     private Node[][] inputs, hiddenLayer1, hiddenLayer2, outputs;
     private double[][][] weights1, weights2, weights3;
@@ -37,6 +38,7 @@ public class NeuralNetwork {
     public NeuralNetwork(){
         feedForward = new FeedForward();
         backPropagation = new BackPropagation();
+        userIO = new UserIO();
         fileIO = new FileIO();
         networkErrors = new String[outputLen];
     }
@@ -277,15 +279,15 @@ public class NeuralNetwork {
     public void startNetwork(){
             boolean satisfiedWithChoices = false;
             while (satisfiedWithChoices == false) {
-                this.networkStatus = fileIO.getNetworkInfo();
+                this.networkStatus = userIO.getNetworkInfo();
                 if (networkStatus == NetworkStatus.LEARN) {
-                    this.batchSize = fileIO.getBiasLength();
+                    this.batchSize = userIO.getBiasLength();
                 } else if (networkStatus == NetworkStatus.RUN) {
                     this.batchSize = 1; // running the network does so one at a time, no need for batches
                 }
-                this.runNum = fileIO.getRunNumber();
+                this.runNum = userIO.getRunNumber();
                 System.out.println(getChoices());
-                satisfiedWithChoices = fileIO.isSatisfied();
+                satisfiedWithChoices = userIO.isSatisfied();
             }
             initializeValues(); // initialize all values. Even when networks been running always read and write to a file
             if (networkStatus == NetworkStatus.LEARN) {
