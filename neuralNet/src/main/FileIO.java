@@ -25,7 +25,7 @@ public class FileIO {
 
     public double[][] readWeights(String fileName){
         double[][] weights;
-        // I use arrayList here so that I dont have to check to see how long the weights row is
+        // I use arrayList here so that I don't have to check to see how long the weights row is
         ArrayList<String[]> lines = new ArrayList<>();
         try {
             FileReader fileReader = new FileReader(fileName);
@@ -45,8 +45,6 @@ public class FileIO {
         catch (FileNotFoundException e) {
             System.out.println("Could not read from file: " + fileName);
         }
-
-
         return null;
     }
 
@@ -55,7 +53,6 @@ public class FileIO {
             FileWriter fileWriter = new FileWriter(fileName, false);
             for (int i = 0; i < weights.length; i++) {
                 for (int j = 0; j < weights[0].length; j++) {
-
                     fileWriter.write(weights[i][j] + ",");
                 }
                 fileWriter.append("\n");
@@ -100,13 +97,11 @@ public class FileIO {
        catch (IOException e){
            System.out.println("Could not write to file: " + fileName);
        }
-
     }
 
 
     public double[][] getDataBatch(int index, int batchSize){
         double[][] batchInputs = new double[batchSize][doubleImages[0].length];
-        //System.out.println("Double" + Arrays.toString(doubleImages[index]));
         int t = 0;
         if (index >= labels.length){
             index %= labels.length;
@@ -115,15 +110,14 @@ public class FileIO {
                 batchInputs[t] = doubleImages[i];
             t++;
         }
-        //System.out.println("Batch" + Arrays.toString(batchInputs[0]));
         return batchInputs;
     }
 
     public int[] getLabelsBatch(int index, int batchSize, boolean printExpexted){
         int[] batchInputs = new int[batchSize];
-        if (index >= labels.length){
-            index %= labels.length;
-        }
+            if (index >= labels.length){
+                 index %= labels.length;
+            }
         int t = 0;
         for (int i = index; i < index + batchSize; i++){
             batchInputs[t] = labels[i];
@@ -141,8 +135,6 @@ public class FileIO {
     public void getDataFromFiles(String labelFile, String imageFile){
         labels = MnistReader.getLabels(labelFile);
         images = MnistReader.getImages(imageFile);
-
-        // want to convert
 
         doubleImages = new double[images.size()][images.get(0).length * images.get(0)[0].length];
         for (int i = 0; i < images.size(); i ++){

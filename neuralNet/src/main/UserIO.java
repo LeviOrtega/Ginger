@@ -14,6 +14,7 @@ public class UserIO {
     }
 
 
+
     public int getRunNumber(){
 
         while (true) {
@@ -30,7 +31,7 @@ public class UserIO {
         }
     }
 
-    public int getBiasLength(){
+    public int getBatchSize(){
 
         while (true) {
             System.out.println("Enter batch size: ");

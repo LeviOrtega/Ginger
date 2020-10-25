@@ -43,6 +43,40 @@ public class NeuralNetwork {
         networkErrors = new String[outputLen];
     }
 
+
+    public static void main(String[] args){
+        NeuralNetwork neuralNetwork = new NeuralNetwork();
+        neuralNetwork.startNetwork();
+    }
+
+    // handles user IO for how to run the network
+    public void startNetwork(){
+        boolean satisfiedWithChoices = false;
+        while (!satisfiedWithChoices) {
+            this.networkStatus = userIO.getNetworkInfo();
+            if (networkStatus == NetworkStatus.TRAIN) {
+                batchSize = userIO.getBatchSize();
+            } else if (networkStatus == NetworkStatus.TEST) {
+                batchSize = 1; // running the network does so one at a time, no need for batches
+            }
+            runNum = userIO.getRunNumber();
+            System.out.println(getChoices());
+            satisfiedWithChoices = userIO.isSatisfied();
+        }
+        initializeValues(); // initialize all values. Even when networks been running always read and write to a file
+        if (networkStatus == NetworkStatus.TRAIN) {
+            fileIO.getDataFromFiles(trainLabelFile, trainFile);
+            trainLoop();
+        }
+        else if (networkStatus == NetworkStatus.TEST) {
+            fileIO.getDataFromFiles(testLabelFile, testFile);
+            testLoop();
+        }
+        else if (networkStatus == NetworkStatus.END){
+            System.out.println("Closing network, files not formatted correctly");
+        }
+    }
+
     // this method is used to take values from either test, training, or hardcoded values if new network
     public void initializeValues(){
         iterations = 0;
@@ -60,6 +94,128 @@ public class NeuralNetwork {
             setNodesBiases(bias3, outputs);
         }
     }
+
+
+    public void initWeights(){
+        weights1 = new double[batchSize][h1Len][inputLen];
+        weights2 = new double[batchSize][h2Len][h1Len];
+        weights3 = new double[batchSize][outputLen][h2Len];
+    }
+
+    public void initBiases(){
+        bias1 = new double[batchSize][h1Len];
+        bias2 = new double[batchSize][h2Len];
+        bias3 = new double[batchSize][outputLen];
+    }
+
+    // Initialize node layers
+    public void initNodes(){
+        inputs = new Node[batchSize][inputLen];
+        hiddenLayer1 = new Node[batchSize][h1Len];
+        hiddenLayer2 = new Node[batchSize][h2Len];
+        outputs = new Node[batchSize][outputLen];
+        // All nodes will be defaulted to have a bias of 0, setNodesBiases handles this later
+        for (int b = 0; b < batchSize; b++) {
+            for (int i = 0; i < inputs[0].length; i++) {
+                inputs[b][i] = new Node(0, 0, true);
+            }
+            for (int i = 0; i < hiddenLayer1[0].length; i++) {
+                hiddenLayer1[b][i] = new Node(0, 0, false);
+            }
+            for (int i = 0; i < hiddenLayer2[0].length; i++) {
+                hiddenLayer2[b][i] = new Node(0,0, false);
+            }
+            for (int i = 0; i < outputs[0].length; i++) {
+                outputs[b][i] = new Node(0, 0, false);
+            }
+        }
+    }
+
+    public void takeBiases(boolean isNewNetwork){
+        for (int b = 0; b < batchSize; b++) {
+            if (isNewNetwork) {
+                bias1[b] = giveRandomBiases(bias1[b]);
+                bias2[b] = giveRandomBiases(bias2[b]);
+                bias3[b] = giveRandomBiases(bias3[b]);
+            }
+            else {
+                bias1[b] = fileIO.readBiases(biasesFiles[0]);
+                bias2[b] = fileIO.readBiases(biasesFiles[1]);
+                bias3[b] = fileIO.readBiases(biasesFiles[2]);
+
+                if (bias1[b] == null || bias2[b] == null || bias3[b] == null){
+                    networkStatus = NetworkStatus.END;
+                }
+            }
+        }
+    }
+
+    public void takeWeights(boolean isNewNetwork){
+        for (int b = 0; b < batchSize; b++) {
+            if (isNewNetwork) {
+                weights1[b] = giveRandomWeights(weights1[b]);
+                weights2[b] = giveRandomWeights(weights2[b]);
+                weights3[b] = giveRandomWeights(weights3[b]);
+            }
+            else {
+                weights1[b] = fileIO.readWeights(weightsFiles[0]);
+                weights2[b] = fileIO.readWeights(weightsFiles[1]);
+                weights3[b] = fileIO.readWeights(weightsFiles[2]);
+
+                if (weights1[b] == null || weights2[b] == null || weights3[b] == null){
+                    networkStatus = NetworkStatus.END;
+                }
+            }
+        }
+    }
+
+    public void takeInputs(){
+        double[][] batchInputs = fileIO.getDataBatch(iterations * batchSize, batchSize);
+        for (int b = 0; b < batchSize; b++){
+            for (int i = 0; i < inputs[0].length; i++){
+                inputs[b][i].setActivation(batchInputs[b][i]/255.0);
+            }
+        }
+    }
+
+    public void takeExpected(boolean printExpected){
+        expectedNodeForm = new double[batchSize][outputLen];
+        // print expected prints the picture associated with the expected
+        int[] labels = fileIO.getLabelsBatch(iterations * batchSize, batchSize, printExpected);
+        // converts the expected label (1,2,3..etc) to array where that index is set to 1 for expected output of network
+        for (int b = 0; b < expectedNodeForm.length; b++){
+            expectedNodeForm[b][labels[b]] = 1;
+        }
+    }
+    // initialize weights with random value if a new neural network
+    public double[][] giveRandomWeights(double[][] weights){
+        Random rand = new Random(randSeed);
+        for (int i = 0; i < weights.length; i++){
+            for (int j = 0; j < weights[0].length; j++){
+                weights[i][j] = rand.nextDouble();
+            }
+        }
+        return weights;
+    }
+
+    // only used when the network is fresh and has no file to read from
+    public double[] giveRandomBiases(double[] bias){
+        Random rand = new Random(randSeed);
+        for (int i = 0; i < bias.length; i++){
+            bias[i] = rand.nextDouble();
+        }
+        return bias;
+    }
+
+    // set each node's biases. Important for feed forward, called when initializing network and backpropagation
+    public void setNodesBiases(double[][] biases, Node[][] nodes){
+        for (int b = 0; b < nodes.length; b++ ){
+            for (int i = 0; i < nodes[0].length; i++){
+                nodes[b][i].setBias(biases[b][i]);
+            }
+        }
+    }
+
 
     public void networkTrain(boolean printResults, boolean debug){
         takeInputs();
@@ -143,153 +299,6 @@ public class NeuralNetwork {
         }
     }
 
-
-    // Initialize node layers
-    public void initNodes(){
-        inputs = new Node[batchSize][inputLen];
-        hiddenLayer1 = new Node[batchSize][h1Len];
-        hiddenLayer2 = new Node[batchSize][h2Len];
-        outputs = new Node[batchSize][outputLen];
-        // All nodes will be defaulted to have a bias of 0, setNodesBiases handles this later
-        for (int b = 0; b < batchSize; b++) {
-            for (int i = 0; i < inputs[0].length; i++) {
-                inputs[b][i] = new Node(0, 0, true);
-            }
-            for (int i = 0; i < hiddenLayer1[0].length; i++) {
-                hiddenLayer1[b][i] = new Node(0, 0, false);
-            }
-            for (int i = 0; i < hiddenLayer2[0].length; i++) {
-                hiddenLayer2[b][i] = new Node(0,0, false);
-            }
-            for (int i = 0; i < outputs[0].length; i++) {
-                outputs[b][i] = new Node(0, 0, false);
-            }
-        }
-    }
-
-    public void initWeights(){
-        weights1 = new double[batchSize][h1Len][inputLen];
-        weights2 = new double[batchSize][h2Len][h1Len];
-        weights3 = new double[batchSize][outputLen][h2Len];
-    }
-    public void takeWeights(boolean isNewNetwork){
-        for (int b = 0; b < batchSize; b++) {
-            if (isNewNetwork) {
-                weights1[b] = giveRandomWeights(weights1[b]);
-                weights2[b] = giveRandomWeights(weights2[b]);
-                weights3[b] = giveRandomWeights(weights3[b]);
-            }
-            else {
-                weights1[b] = fileIO.readWeights(weightsFiles[0]);
-                weights2[b] = fileIO.readWeights(weightsFiles[1]);
-                weights3[b] = fileIO.readWeights(weightsFiles[2]);
-
-                if (weights1[b] == null || weights2[b] == null || weights2[b] == null){
-                    networkStatus = NetworkStatus.END;
-                }
-            }
-        }
-    }
-
-    public void initBiases(){
-        bias1 = new double[batchSize][h1Len];
-        bias2 = new double[batchSize][h2Len];
-        bias3 = new double[batchSize][outputLen];
-    }
-
-    public void takeBiases(boolean isNewNetwork){
-        for (int b = 0; b < batchSize; b++) {
-            if (isNewNetwork) {
-                bias1[b] = giveRandomBiases(bias1[b]);
-                bias2[b] = giveRandomBiases(bias2[b]);
-                bias3[b] = giveRandomBiases(bias3[b]);
-            }
-            else {
-                bias1[b] = fileIO.readBiases(biasesFiles[0]);
-                bias2[b] = fileIO.readBiases(biasesFiles[1]);
-                bias3[b] = fileIO.readBiases(biasesFiles[2]);
-
-                if (bias1[b] == null || bias2[b] == null || bias2[b] == null){
-                    networkStatus = NetworkStatus.END;
-                }
-            }
-        }
-    }
-
-    public void takeInputs(){
-        double[][] batchInputs = fileIO.getDataBatch(iterations * batchSize, batchSize);
-
-        for (int b = 0; b < batchSize; b++){
-            for (int i = 0; i < inputs[0].length; i++){
-                inputs[b][i].setActivation(batchInputs[b][i]/255.0);
-            }
-        }
-    }
-
-    public void takeExpected(boolean printExpected){
-        expectedNodeForm = new double[batchSize][outputLen];
-        int[] labels = fileIO.getLabelsBatch(iterations * batchSize, batchSize, printExpected);
-        // converts the expected label (1,2,3..etc) to array where that index is set to 1 for expected output of network
-        for (int b = 0; b < expectedNodeForm.length; b++){
-            expectedNodeForm[b][labels[b]] = 1;
-        }
-    }
-
-    // set each node's biases. Important for feed forward, called when initializing network and backpropagation
-    public void setNodesBiases(double[][] biases, Node[][] nodes){
-        for (int b = 0; b < nodes.length; b++ ){
-            for (int i = 0; i < nodes[0].length; i++){
-                nodes[b][i].setBias(biases[b][i]);
-            }
-        }
-    }
-    // initialize weights with random value if a new neural network
-    public double[][] giveRandomWeights(double[][] weights){
-        Random rand = new Random(randSeed);
-        for (int i = 0; i < weights.length; i++){
-            for (int j = 0; j < weights[0].length; j++){
-                weights[i][j] = rand.nextDouble();
-            }
-        }
-        return weights;
-    }
-    // only used when the network is fresh and has no file to read from
-    public double[] giveRandomBiases(double[] bias){
-        Random rand = new Random(randSeed);
-        for (int i = 0; i < bias.length; i++){
-            bias[i] = rand.nextDouble();
-        }
-        return bias;
-    }
-
-    // handles user IO for how to run the network
-    public void startNetwork(){
-            boolean satisfiedWithChoices = false;
-            while (satisfiedWithChoices == false) {
-                this.networkStatus = userIO.getNetworkInfo();
-                if (networkStatus == NetworkStatus.TRAIN) {
-                    this.batchSize = userIO.getBiasLength();
-                } else if (networkStatus == NetworkStatus.TEST) {
-                    this.batchSize = 1; // running the network does so one at a time, no need for batches
-                }
-                this.runNum = userIO.getRunNumber();
-                System.out.println(getChoices());
-                satisfiedWithChoices = userIO.isSatisfied();
-            }
-            initializeValues(); // initialize all values. Even when networks been running always read and write to a file
-            if (networkStatus == NetworkStatus.TRAIN) {
-                fileIO.getDataFromFiles(trainLabelFile, trainFile);
-                trainLoop();
-            }
-            else if (networkStatus == NetworkStatus.TEST) {
-                fileIO.getDataFromFiles(testLabelFile, testFile);
-                testLoop();
-            }
-            else if (networkStatus == NetworkStatus.END){
-                System.out.println("Closing network, files not formatted correctly");
-            }
-    }
-
     public void testLoop(){
         for (int i = 0; i < runNum; i++){
             networkTest(true);
@@ -311,7 +320,6 @@ public class NeuralNetwork {
         fileIO.writeWeights(weights3[0], weightsFiles[2]);
 
         startNetwork();
-
     }
 
     public String getChoices(){
@@ -368,13 +376,5 @@ public class NeuralNetwork {
         }
         return result;
     }
-
-
-    public static void main(String[] args){
-        NeuralNetwork neuralNetwork = new NeuralNetwork();
-        neuralNetwork.startNetwork();
-    }
-
-
 
 }
