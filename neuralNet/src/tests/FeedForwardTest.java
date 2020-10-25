@@ -63,7 +63,4 @@ class FeedForwardTest {
         Assertions.assertEquals(0.5, feedForward.sigmoid(0));
     }
 
-
-
-
 }

@@ -65,7 +65,4 @@ public class Node{
                 '}';
     }
 
-    public boolean equals(Node node) {      // used for testing assert.Equals
-       return this.activation == node.getActivation() && this.sigmoidActivation == node.getSigmoidActivation();
-    }
 }

@@ -3,7 +3,6 @@ package main;
 Manages input and output of weights, biases, test data, and training data
  */
 
-
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;

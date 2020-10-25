@@ -13,28 +13,34 @@ public class UserIO {
         inputScanner = new Scanner(System.in);
     }
 
+    public int getRunNumber(){return getInt("Enter how many times to run network: "); }
 
+    public int getBatchSize(){ return getInt("Enter batch size: "); }
 
-    public int getRunNumber(){
+    public boolean isNewNetwork(){ return getYesNo("Is this a new Neural Network?"); }
 
+    public boolean isSatisfied(){ return getYesNo("Is this what you want?"); }
+
+    public boolean doContinue(){ return getYesNo("Continue testing? "); }
+
+    public double getLearningRate(){
         while (true) {
-            System.out.println("Enter how many times to run network: ");
+            System.out.println("Enter learning rate: ");
             try {
-                    int input = Integer.parseInt(inputScanner.next());
-                    if (input > 0) {
-                        return input;
-                    }
+                double input = Double.parseDouble(inputScanner.next());
+                if (input > 0) {
+                    return input;
+                }
 
             } catch (NumberFormatException e) {
-                System.out.println("Please enter an integer greater than zero.");
+                System.out.println("Please enter a decimal value greater than zero.");
             }
         }
     }
 
-    public int getBatchSize(){
-
+    public int getInt(String s) {
         while (true) {
-            System.out.println("Enter batch size: ");
+            System.out.println(s);
             try {
                 int input = Integer.parseInt(inputScanner.next());
                 if (input > 0) {
@@ -50,7 +56,7 @@ public class UserIO {
     public NetworkStatus getNetworkInfo(){
         // return 1 for run, 0 for learn
         while (true) {
-            System.out.println("Enter: Network Train (0) or Network Test (1)");
+            System.out.println("Enter: Network Train (0) Network Test (1) Network Quit(2)");
             try {
                 int input = Integer.parseInt(inputScanner.next());
                 if (input == 0) {
@@ -59,16 +65,18 @@ public class UserIO {
                 else if (input == 1){
                     return NetworkStatus.TEST;
                 }
+                else if (input == 2){
+                    return NetworkStatus.END;
+                }
 
             } catch (NumberFormatException e) {
                 System.out.println("Please enter a correct format");
             }
         }
     }
-
-    public boolean isSatisfied(){
+    public boolean getYesNo(String message) {
         while (true){
-            System.out.println("Is this what you want? (Y/N)");
+            System.out.println(message + " (Y/N)");
             try {
                 String answer = inputScanner.next().trim().toLowerCase();
                 if (answer.equals("y")){

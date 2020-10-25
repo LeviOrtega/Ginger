@@ -4,7 +4,7 @@ Learning algorithm for network
  */
 
 public class BackPropagation {
-    final static double learningRate = 1;
+    private static double learningRate = 0.1;
     static String totalError;
     double[] actualSigmoid,actualActivation,error;
     double[] prevActualSigmoid, prevError;
@@ -174,6 +174,14 @@ public class BackPropagation {
 
     public String getTotalError(){
         return totalError;
+    }
+
+    public void setLearningRate(double learningRate){
+        this.learningRate = learningRate;
+    }
+
+    public double getLearningRate(){
+        return learningRate;
     }
 
     public double[][] transpose(double[][] array){
