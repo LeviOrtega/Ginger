@@ -3,22 +3,17 @@ package main;
 Main driving class
  */
 
-import java.util.Arrays;
 import java.util.Random;
-
-//TODO Import inputs and expected
-
 
 
 public class NeuralNetwork {
-    public final static boolean isNewNetwork = false;
+    public final static boolean isNewNetwork = true;
     public final static int inputLen = 784;
-    public final static int h1Len = 10;
-    public final static int h2Len = 10;
+    public final static int h1Len = 196;
+    public final static int h2Len = 196;
     public final static int outputLen = 10;
     public final static int randSeed = 1;       // seed for random biases and weights at start of new network
-    public static int epoch;
-    private static int runCount;                // how many times network has been fed forward
+    public static int iterations;
     private static int batchSize;
     private static int runNum;                  // number of times the network will run
     private FeedForward feedForward;
@@ -50,7 +45,7 @@ public class NeuralNetwork {
 
     // this method is used to take values from either test, training, or hardcoded values if new network
     public void initializeValues(){
-        epoch = 0;
+        iterations = 0;
         initWeights();
         initBiases();
         initNodes();
@@ -68,7 +63,7 @@ public class NeuralNetwork {
 
     public void networkTrain(boolean printResults, boolean debug){
         takeInputs();
-        takeExpected();
+        takeExpected(false);
         //feed forward
         batchFeedForward();
         if(debug) System.out.println("Before BackPropagation \n" + this.debugToString());
@@ -77,7 +72,7 @@ public class NeuralNetwork {
         batchBackPropagation();
         if (debug) System.out.println("After BackPropagation \n" + this.debugToString() + "\n");
         if (printResults) System.out.println(this);
-        epoch ++;   // each epoch will be of batchSize
+        iterations++;   // each epoch will be of batchSize
     }
 
     /*  Because everything is averaged in the batches from backpropagation,
@@ -88,7 +83,7 @@ public class NeuralNetwork {
     */
     public void networkTest(boolean printResults){
         takeInputs();
-        takeExpected();
+        takeExpected(true);
         feedForward.setPrevActivationLayer(inputs[0]);
         hiddenLayer1[0] = feedForward.generateNextLayer(weights1[0], hiddenLayer1[0]);
         hiddenLayer2[0] = feedForward.generateNextLayer(weights2[0], hiddenLayer2[0]);
@@ -102,19 +97,18 @@ public class NeuralNetwork {
                         maxChoiceValue = outputs[0][i].getSigmoidActivation();
                      }
                 }
-            epoch ++;   // each epoch will be of batchSize
-            System.out.println("Network chose: " + choice + ". Expected: " + Arrays.toString(expectedNodeForm[0]));
+
+            iterations++;   // each epoch will be of batchSize
+            System.out.println("Network chose: " + choice);
         }
     }
     public void batchFeedForward() {
         for (int b = 0; b < batchSize; b++) {
-            //runCount++;       // if you want to show how many ff total
             feedForward.setPrevActivationLayer(inputs[b]);
             hiddenLayer1[b] = feedForward.generateNextLayer(weights1[b], hiddenLayer1[b]);
             hiddenLayer2[b] = feedForward.generateNextLayer(weights2[b], hiddenLayer2[b]);
             outputs[b] = feedForward.generateNextLayer(weights3[b], outputs[b]);
         }
-        runCount++;
     }
 
     public void batchBackPropagation() {
@@ -223,18 +217,18 @@ public class NeuralNetwork {
     }
 
     public void takeInputs(){
-        double[][] batchInputs = fileIO.getDataBatch(epoch * batchSize, batchSize);
+        double[][] batchInputs = fileIO.getDataBatch(iterations * batchSize, batchSize);
 
         for (int b = 0; b < batchSize; b++){
             for (int i = 0; i < inputs[0].length; i++){
-                inputs[b][i].setActivation(batchInputs[b][i]);
+                inputs[b][i].setActivation(batchInputs[b][i]/255.0);
             }
         }
     }
 
-    public void takeExpected(){
+    public void takeExpected(boolean printExpected){
         expectedNodeForm = new double[batchSize][outputLen];
-        int[] labels = fileIO.getLabelsBatch(epoch * batchSize, batchSize);
+        int[] labels = fileIO.getLabelsBatch(iterations * batchSize, batchSize, printExpected);
         // converts the expected label (1,2,3..etc) to array where that index is set to 1 for expected output of network
         for (int b = 0; b < expectedNodeForm.length; b++){
             expectedNodeForm[b][labels[b]] = 1;
@@ -307,7 +301,7 @@ public class NeuralNetwork {
         for (int i = 0; i < runNum; i++){
             networkTrain(false, false);
         }
-
+        System.out.println(toString());
         // after running, write all learning to file
         fileIO.writeBiases(bias1[0], biasesFiles[0]);
         fileIO.writeBiases(bias2[0], biasesFiles[1]);
@@ -331,9 +325,8 @@ public class NeuralNetwork {
     public String toString(){
         String message = "";
         for (int b = 0; b < batchSize; b++) {
-            message += "\nBatch number: " + b + "\n";
-            message += "Run number: " + runCount + "\n";
-            message += getLayerStringValue(inputs[b], 1);
+            //message += "\nBatch number: " + b + "\n";
+            //message += getLayerStringValue(inputs[b], 1);
             message += getLayerStringValue(outputs[b], 4);
             message += networkErrors[b];
         }

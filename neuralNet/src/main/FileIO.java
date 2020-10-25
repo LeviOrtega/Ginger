@@ -9,13 +9,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
 public class FileIO {
 
-    private double[] doubleLabels;
+
     private double[][] doubleImages;
     private int[] labels;
     private List<int[][]> images;
@@ -109,6 +108,9 @@ public class FileIO {
         double[][] batchInputs = new double[batchSize][doubleImages[0].length];
         //System.out.println("Double" + Arrays.toString(doubleImages[index]));
         int t = 0;
+        if (index >= labels.length){
+            index %= labels.length;
+        }
         for (int i = index; i < index + batchSize ; i ++){
                 batchInputs[t] = doubleImages[i];
             t++;
@@ -117,13 +119,20 @@ public class FileIO {
         return batchInputs;
     }
 
-    public int[] getLabelsBatch(int index, int batchSize){
+    public int[] getLabelsBatch(int index, int batchSize, boolean printExpexted){
         int[] batchInputs = new int[batchSize];
+        if (index >= labels.length){
+            index %= labels.length;
+        }
         int t = 0;
         for (int i = index; i < index + batchSize; i++){
             batchInputs[t] = labels[i];
             t++;
         }
+        if (printExpexted){
+            printExpected(index);
+        }
+
         return batchInputs;
     }
 
@@ -146,6 +155,15 @@ public class FileIO {
                 }
             }
         }
+    }
+
+    public void printExpected(int index){
+        printf("================= LABEL %d\n", labels[index]);
+        printf("%s", MnistReader.renderImage(images.get(index)));
+    }
+
+    public static void printf(String format, Object... args) {
+        System.out.printf(format, args);
     }
 
 }
