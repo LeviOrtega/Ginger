@@ -176,8 +176,10 @@ public class NeuralNetwork {
 
     public void takeInputs(){
         double[][] batchInputs = fileIO.getDataBatch(iterations * batchSize, batchSize);
+        //Random random = new Random(randSeed);
         for (int b = 0; b < batchSize; b++){
             for (int i = 0; i < inputs[0].length; i++){
+                //random.nextDouble()
                 inputs[b][i].setActivation(batchInputs[b][i]/255.0);
             }
         }
@@ -197,7 +199,7 @@ public class NeuralNetwork {
         Random rand = new Random(randSeed);
         for (int i = 0; i < weights.length; i++){
             for (int j = 0; j < weights[0].length; j++){
-                weights[i][j] = (rand.nextDouble()) * Math.sqrt(h1Len/(inputLen + outputLen));
+                weights[i][j] = (rand.nextDouble()) * Math.sqrt(6.0/(inputLen + outputLen));
             }
         }
         return weights;
@@ -207,7 +209,7 @@ public class NeuralNetwork {
     public double[] giveRandomBiases(double[] bias){
         Random rand = new Random(randSeed);
         for (int i = 0; i < bias.length; i++){
-            bias[i] = (rand.nextDouble()) * Math.sqrt(6/(inputLen + outputLen));
+            bias[i] = (rand.nextDouble()) * Math.sqrt(6.0/(inputLen + outputLen));
         }
         return bias;
     }
