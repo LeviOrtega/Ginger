@@ -181,6 +181,7 @@ public class NeuralNetwork {
         // converts the expected label (1,2,3..etc) to array where that index is set to 1 for expected output of network
         for (int b = 0; b < expectedNodeForm.length; b++){
             expectedNodeForm[b][labels[b]] = 1;
+            //expectedNodeForm[b][b] = 1; // for hardcoding testing
         }
     }
     // initialize weights with random value if a new neural network
