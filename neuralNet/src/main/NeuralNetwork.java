@@ -10,7 +10,6 @@ import java.util.Random;
 public class NeuralNetwork {
     private final static int inputLen = 784;
     private final static int hiddenLen = 15;
-    //private final static int h2Len = 196;
     private final static int outputLen = 10;
     private final static int randSeed = 1;       // seed for random biases and weights at start of new network
     private static int iterations;
@@ -214,18 +213,18 @@ public class NeuralNetwork {
     }
 
 
-    public void networkTrain(boolean printResults, boolean debug){
+    public void networkTrain(boolean printResults){
         takeInputs();
         takeExpected(false);
         //feed forward
         batchFeedForward();
-        if(debug) System.out.println("Before BackPropagation \n" + this.debugToString());
 
         //back propagate
         batchBackPropagation();
-        if (debug) System.out.println("After BackPropagation \n" + this.debugToString() + "\n");
-        if (printResults) System.out.println(this);
+
         iterations++;   // each epoch will be of batchSize
+
+        if (printResults && ((iterations) % (runNum / 10) == 0  || iterations == 1)) System.out.println("Run number: " + (iterations ) + "\n" + this);
     }
 
     /*  Because everything is averaged in the batches from backprop,
@@ -305,9 +304,8 @@ public class NeuralNetwork {
 
     public void trainLoop(){
         for (int i = 0; i < runNum; i++){
-            networkTrain(false, false);
+            networkTrain(true);
         }
-        System.out.println(toString());
         // after running, write all learning to file
         fileIO.writeBiases(bias1[0], biasesFiles[0]);
         fileIO.writeBiases(bias2[0], biasesFiles[1]);
@@ -328,15 +326,13 @@ public class NeuralNetwork {
     }
 
     public String toString(){
-        String message = "";
+
+        double avg = 0;
         for (int b = 0; b < batchSize; b++) {
-            //message += "\nBatch number: " + b + "\n";
-            //message += getLayerStringValue(inputs[b], 1);
-            message += "\n" +"Expected " + Arrays.toString(expectedNodeForm[b])
-                    + "\n" + getLayerStringValue(outputs[b], 4) + "\n"
-                    + "Network Error: " + networkErrors[b];
+           avg += Double.valueOf(networkErrors[b]);
         }
-        return message;
+        avg /= batchSize;
+        return "Network error: " + avg;
     }
 
     public String debugToString(){
